@@ -1,0 +1,438 @@
+:root {
+  --primary: #4f46e5;
+  --primary-light: #818cf8;
+  --secondary: #ec4899;
+  --accent: #8b5cf6;
+  --background: #0f172a;
+  --glass: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text: #ffffff;
+  --text-dim: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Outfit', sans-serif;
+}
+
+body {
+  background: radial-gradient(circle at top left, #1e1b4b, #0f172a);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/* Background Particles */
+.science-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.15;
+  animation: float 20s infinite linear;
+  filter: blur(1px);
+}
+
+.atom {
+  top: 15%;
+  left: 10%;
+  animation-duration: 25s;
+}
+
+.dna {
+  top: 75%;
+  left: 85%;
+  animation-duration: 30s;
+  font-size: 3rem;
+}
+
+.microscope {
+  top: 45%;
+  left: 20%;
+  animation-duration: 28s;
+}
+
+.flask {
+  top: 85%;
+  left: 15%;
+  animation-duration: 22s;
+}
+
+.planet {
+  top: 10%;
+  left: 80%;
+  animation-duration: 35s;
+  font-size: 4rem;
+}
+
+.rocket {
+  top: 50%;
+  left: 50%;
+  animation-duration: 40s;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  33% {
+    transform: translate(50px, -50px) rotate(120deg);
+  }
+
+  66% {
+    transform: translate(-20px, 50px) rotate(240deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(360deg);
+  }
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 900px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  padding: 2vh 1rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2vh;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #a5b4fc, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(79, 70, 229, 0.3);
+}
+
+/* Avatar Image Style */
+.avatar-img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  /* border: 4px solid #fff; Removed per user request */
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.avatar-img.speaking {
+  transform: scale(1.05);
+  box-shadow: 0 0 40px rgba(99, 102, 241, 0.8), 0 0 80px rgba(99, 102, 241, 0.4);
+}
+
+.avatar-img.listening {
+  border-color: #ef4444;
+  /* Red border when listening */
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+}
+
+.avatar-container {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2vh;
+}
+
+.robot {
+  width: 160px;
+  height: 160px;
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 40px rgba(79, 70, 229, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.robot.speaking {
+  box-shadow: 0 0 60px rgba(236, 72, 153, 0.4);
+  transform: scale(1.05);
+  border-color: rgba(236, 72, 153, 0.5);
+}
+
+.eyes {
+  display: flex;
+  gap: 35px;
+}
+
+.eye {
+  width: 35px;
+  height: 35px;
+  background: #22d3ee;
+  border-radius: 50%;
+  box-shadow: 0 0 15px #22d3ee;
+  transition: all 0.1s;
+}
+
+.robot.speaking .eye {
+  height: 15px;
+  /* Blink/Squint effect */
+  transform: scaleX(1.1);
+}
+
+.mouth {
+  position: absolute;
+  bottom: 35px;
+  width: 40px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  transition: height 0.1s;
+}
+
+.robot.speaking .mouth {
+  height: 25px;
+  width: 35px;
+  border-radius: 50%;
+  background: #ec4899;
+  box-shadow: 0 0 10px #ec4899;
+}
+
+/* Chat Area - Glassmorphism */
+.chat-area {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  scroll-behavior: smooth;
+}
+
+.messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+/* Message Bubbles */
+.message {
+  max-width: 85%;
+  padding: 1.25rem 1.5rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  position: relative;
+  word-wrap: break-word;
+  animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message.sestin {
+  background: rgba(51, 65, 85, 0.8);
+  border-radius: 20px 20px 20px 4px;
+  align-self: flex-start;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+}
+
+.message.user {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 20px 20px 4px 20px;
+  align-self: flex-end;
+  box-shadow: 0 5px 15px rgba(236, 72, 153, 0.2);
+  text-align: right;
+}
+
+/* Controls Area */
+.controls {
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  /* Stack mic status and buttons */
+  gap: 1rem;
+}
+
+.options-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+button {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  backdrop-filter: blur(5px);
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.option-btn {
+  flex: 1 1 auto;
+  min-width: 140px;
+  text-align: center;
+}
+
+.back-btn {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim);
+}
+
+.back-btn:hover {
+  color: var(--text);
+  background: transparent;
+}
+
+#mic-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+#mic-btn.active {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  animation: pulse 2s infinite;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+#mic-status {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Start Overlay */
+#start-overlay {
+  background: rgba(15, 23, 42, 0.98) !important;
+  /* Make sure it covers */
+  backdrop-filter: blur(20px);
+}
+
+#start-btn {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  padding: 1.5rem 4rem;
+  font-size: 1.5rem;
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
+  border: none;
+}
+
+#start-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(79, 70, 229, 0.6);
+}
+
+/* 21st Century Skills Animation */
+.skill-collab {
+  top: 20%;
+  left: 70%;
+  animation-duration: 45s;
+  font-size: 3rem;
+}
+
+.skill-think {
+  top: 60%;
+  left: 5%;
+  animation-duration: 50s;
+  font-size: 2.5rem;
+}
+
+.skill-comm {
+  top: 80%;
+  left: 40%;
+  animation-duration: 38s;
+  font-size: 2.5rem;
+}
+
+.skill-create {
+  top: 30%;
+  left: 90%;
+  animation-duration: 42s;
+  font-size: 3rem;
+}
+
+.skill-tech {
+  top: 5%;
+  left: 40%;
+  animation-duration: 55s;
+  font-size: 2.5rem;
+}
