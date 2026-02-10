@@ -395,16 +395,16 @@ function startComprehensionPhase() {
     const hooks = [
         "What is your first thought?",
         "What immediately jumps out at you?",
-        "What do you think? What are they actually looking for?"
+        "What do you think?" // Removed "What are they actually looking for?" to allow redundancy removal
     ];
     const hook = hooks[Math.floor(Math.random() * hooks.length)];
 
+    // Removed "Scientist" suffix from reading the question
     speak(`${intro} ${q.text} ${hook}`);
     addMessage(hook, 'sestin');
     renderComprehensionControls();
 
     // --- INACTIVITY TIMER (10s) ---
-    // Kept only for the verbal prompt, but buttons are now always visible
     if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
     state.inactivityTimer = setTimeout(() => {
         if (state.discussionPhase === 'comprehension') {
@@ -420,12 +420,18 @@ function renderComprehensionControls() {
     const grid = document.createElement('div');
     grid.className = 'options-grid';
 
+    // Helper: Stop speech on any interaction
+    const cancelSpeech = () => {
+        window.speechSynthesis.cancel();
+        if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
+    };
+
     const btn = document.createElement('button');
     btn.className = 'option-btn';
     btn.style.background = '#4b5563';
     btn.textContent = "💡 Show Options (I've analyzed it)";
     btn.onclick = () => {
-        if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
+        cancelSpeech();
         presentOptions();
     };
 
@@ -434,7 +440,7 @@ function renderComprehensionControls() {
     speakBtn.className = 'option-btn';
     speakBtn.textContent = "🎤 Voice Answer";
     speakBtn.onclick = () => {
-        if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
+        cancelSpeech();
         toggleMic();
     };
 
@@ -443,7 +449,7 @@ function renderComprehensionControls() {
     decomposeBtn.style.background = '#8b5cf6';
     decomposeBtn.textContent = "🧩 Decompose: Break it down";
     decomposeBtn.onclick = () => {
-        if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
+        cancelSpeech();
         decomposeQuestion();
     };
 
@@ -452,17 +458,66 @@ function renderComprehensionControls() {
     newQBtn.style.background = '#f59e0b'; // Amber color
     newQBtn.textContent = "🔄 Try Different Question";
     newQBtn.onclick = () => {
-        if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
+        cancelSpeech();
         startRandomQuestion();
+    };
+
+    const typeBtn = document.createElement('button');
+    typeBtn.className = 'option-btn';
+    typeBtn.textContent = "⌨️ Type Answer";
+    typeBtn.onclick = () => {
+        cancelSpeech();
+        toggleTextInput();
     };
 
 
     grid.appendChild(speakBtn);
+    grid.appendChild(typeBtn); // Added Type Button
     grid.appendChild(decomposeBtn);
     grid.appendChild(btn);
     grid.appendChild(newQBtn);
 
     controlsEl.appendChild(grid);
+
+    // Text Input Container (Hidden by default)
+    const textContainer = document.createElement('div');
+    textContainer.id = 'text-input-container';
+    textContainer.innerHTML = `
+        <input type="text" id="keyboard-input" placeholder="Type your answer here..." autocomplete="off">
+        <button id="send-text-btn">Send 🚀</button>
+    `;
+    controlsEl.appendChild(textContainer);
+
+    // Bind Send Button
+    setTimeout(() => {
+        const sendBtn = document.getElementById('send-text-btn');
+        const input = document.getElementById('keyboard-input');
+        if (sendBtn && input) {
+            sendBtn.onclick = () => {
+                const text = input.value.trim();
+                if (text) {
+                    addMessage(text, 'user');
+                    handleInput(text);
+                    input.value = '';
+                    textContainer.style.display = 'none'; // Hide after send
+                }
+            };
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendBtn.click();
+            });
+        }
+    }, 100);
+}
+
+function toggleTextInput() {
+    const container = document.getElementById('text-input-container');
+    if (container) {
+        const isHidden = container.style.display === 'none' || container.style.display === '';
+        container.style.display = isHidden ? 'flex' : 'none';
+        if (isHidden) {
+            setTimeout(() => document.getElementById('keyboard-input').focus(), 100);
+        }
+    }
 }
 
 function decomposeQuestion() {
@@ -827,10 +882,20 @@ window.handleSignUp = function () {
         return;
     }
 
-    // Generate Username: ali.yilmaz (lowercase, turkish chars replaced ideally but simple replacement okay)
-    const username = `${name.toLowerCase()}.${surname.toLowerCase()}`
+    // Generate Username: ali.yilmaz
+    let baseUsername = `${name.toLowerCase()}.${surname.toLowerCase()}`
         .replace(/[^a-z0-9.]/g, '')
         .replace(/\s+/g, '');
+
+    let username = baseUsername;
+
+    // Check for duplicates
+    const currentCustom = JSON.parse(localStorage.getItem('tmsa_custom_students') || '[]');
+    let counter = 2;
+    while (currentCustom.find(u => u.username === username)) {
+        username = `${baseUsername}${counter}`;
+        counter++;
+    }
 
     const password = "123"; // Default simple password
 
@@ -847,7 +912,6 @@ window.handleSignUp = function () {
     window.studentRoster.push(newUser);
 
     // Persist
-    const currentCustom = JSON.parse(localStorage.getItem('tmsa_custom_students') || '[]');
     currentCustom.push(newUser);
     localStorage.setItem('tmsa_custom_students', JSON.stringify(currentCustom));
 
@@ -863,7 +927,7 @@ window.handleSignUp = function () {
     if (startOverlay) startOverlay.style.display = 'flex';
 
     if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${name}?`;
-    pedagogyData.intro_message = `Welcome Scientist ${name} from ${school} to TMSA Curie. Please select your grade.`;
+    pedagogyData.intro_message = `Welcome Scientist ${name}! This platform is designed to help you practice for your EOG Science exams. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
 
     console.log("Logged in new user:", newUser);
 };
@@ -991,6 +1055,20 @@ const initApp = () => {
         state.voices = window.speechSynthesis.getVoices();
     };
     state.voices = window.speechSynthesis.getVoices();
+
+    // Add Logout Button to Header
+    const header = document.querySelector('header');
+    if (header && !document.querySelector('.logout-btn')) {
+        const logoutBtn = document.createElement('button');
+        logoutBtn.className = 'logout-btn';
+        logoutBtn.textContent = 'Logout';
+        logoutBtn.onclick = () => {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.reload();
+            }
+        };
+        header.appendChild(logoutBtn);
+    }
 };
 
 document.addEventListener('DOMContentLoaded', initApp);
