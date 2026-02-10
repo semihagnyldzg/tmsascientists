@@ -23,298 +23,14 @@ debugBanner.style.background = 'blue'; // New version color
 debugBanner.style.color = 'white';
 debugBanner.style.zIndex = '9999';
 debugBanner.style.padding = '5px';
-debugBanner.innerText = 'v5 LOADED';
+debugBanner.innerText = 'v5 REFACTORED';
 document.body.appendChild(debugBanner);
 
 // Application Constants
-// Application Constants
 // secrets object is loaded from secrets.js
 
-const pedagogyData = {
-    "bot_name": "TMSA Curie",
-    "intro_message": "Welcome scientists to TMSA Curie. Please select your grade.",
-    "grades": [
-        {
-            "id": "5th",
-            "title": "5th Graders",
-            "intro_message": "Awesome! Welcome to 5th grade science. Let's explore a topic.",
-            "strands": [
-                {
-                    "code": "GEN.5",
-                    "title": "General Science",
-                    "questions": [
-                        {
-                            "id": 501,
-                            "text": "What is the largest planet in our solar system?",
-                            "options": ["Earth", "Jupiter"],
-                            "correct_answer": "Jupiter",
-                            "explanation": "What observations about size differences have you noticed between the inner and outer planets?"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "8th",
-            "title": "8th Graders",
-            "intro_message": "Super! Let's dive into 8th grade science. Which standard would you like to review?",
-            "strands": [
-                {
-                    "code": "PS.8.1",
-                    "title": "Matter & Interactions",
-                    "description": "Atoms, Periodic Table, Conservation of Mass, Physical/Chemical Changes",
-                    "questions": [
-                        {
-                            "id": "PS.22",
-                            "text": "A student pours a cloudy liquid through a thin piece of paper (filter) and into a beaker. The collected liquid is not cloudy. How should the student classify the original cloudy liquid?",
-                            "options": ["Mixture (Filtration)", "Compound (Filtration)", "Mixture (Evaporation)"],
-                            "correct_answer": "Mixture (Filtration)",
-                            "explanation": "What made you think the filter played a key role here? What properties usually allow separation?"
-                        },
-                        {
-                            "id": "PS.23",
-                            "text": "A neutral Beryllium (Be) atom has 4 protons. If a model shows 5 protons, what is the error?",
-                            "options": ["Too many protons", "Too many electrons", "Wrong location"],
-                            "correct_answer": "Too many protons",
-                            "explanation": "What determines an element's identity? How would adding a proton change the atom?"
-                        },
-                        {
-                            "id": "PS.24",
-                            "text": "How are the properties of Helium (He) and Krypton (Kr) similar?",
-                            "options": ["Nonreactive gases", "Reactive gases", "Reactive liquids"],
-                            "correct_answer": "Nonreactive gases",
-                            "explanation": "What patterns do you notice in that specific group on the periodic table? Do they bond easily?"
-                        },
-                        {
-                            "id": "PS.40",
-                            "text": "Methane (CH4) consists of one carbon atom chemically bonded to four hydrogen atoms. How is methane classified?",
-                            "options": ["Compound", "Element", "Mixture"],
-                            "correct_answer": "Compound",
-                            "explanation": "What is the difference between atoms just mixing vs bonding? What clues tell you they are bonded here?"
-                        },
-                        {
-                            "id": "PS.41",
-                            "text": "An unidentified element is metallic and reacts vigorously with water. Where is it likely found on the periodic table?",
-                            "options": ["Left side (Alkali)", "Right side (Noble)", "Bottom"],
-                            "correct_answer": "Left side (Alkali)",
-                            "explanation": "What trends in reactivity have you observed across the table? Where are the most reactive metals usually found?"
-                        },
-                        {
-                            "id": "PS.42",
-                            "text": "When a hot air balloon inflates: 1) Air is heated and expands. 2) The balloon changes shape. Are these physical or chemical changes?",
-                            "options": ["Both Physical", "Both Chemical", "Mixed"],
-                            "correct_answer": "Both Physical",
-                            "explanation": "What evidence would you look for if a chemical change appeared? Did the substance itself change or just its form?"
-                        }
-                    ]
-                },
-                {
-                    "code": "LS.8.1",
-                    "title": "Diseases & Pathogens",
-                    "description": "Viruses, Bacteria, Parasites, Epidemics vs Pandemics",
-                    "questions": [
-                        {
-                            "id": "LS.9",
-                            "text": "How are viruses similar to parasites?",
-                            "options": ["Require a host", "Multicellular", "Treatable with fungicides"],
-                            "correct_answer": "Require a host",
-                            "explanation": "What does a parasite need to survive? How does a virus compare to that?"
-                        },
-                        {
-                            "id": "LS.18",
-                            "text": "Which situation is most likely to prevent a viral epidemic from becoming a pandemic?",
-                            "options": ["Global travel", "Vaccines & Isolation", "Antibiotics"],
-                            "correct_answer": "Vaccines & Isolation",
-                            "explanation": "What factors usually help a disease spread globally? How would your choice stop that spread?"
-                        },
-                        {
-                            "id": "LS.36",
-                            "text": "An illness is caused by a pathogen smaller than a cell that spreads through air and hijacks cells to copy itself. What is it?",
-                            "options": ["Virus", "Bacteria", "Fungus"],
-                            "correct_answer": "Virus",
-                            "explanation": "What clue in the description made you rule out bacteria? How do these pathogens replicate?"
-                        }
-                    ]
-                },
-                {
-                    "code": "LS.8.2",
-                    "title": "Ecosystems",
-                    "description": "Biotic/Abiotic Factors, Food Webs, Symbiosis",
-                    "questions": [
-                        {
-                            "id": "LS.11",
-                            "text": "Which choice describes a BIOTIC factor in an ecosystem?",
-                            "options": ["Plants providing shelter", "Rainfall amount", "Temperature"],
-                            "correct_answer": "Plants providing shelter",
-                            "explanation": "What does the root 'bio' mean to you? How does that help classify these options?"
-                        },
-                        {
-                            "id": "LS.19",
-                            "text": "If wolves (predators of deer) are introduced to a forest, what happens to the deer's other competitors (like rabbits)?",
-                            "options": ["More resources available", "Fewer resources", "They die out"],
-                            "correct_answer": "More resources available",
-                            "explanation": "If the deer population goes down, what enters the system for other animals to use?"
-                        },
-                        {
-                            "id": "LS.37",
-                            "text": "Food chain: Plants -> Beetle -> Snake -> Hawk. What happens if snakes are eliminated?",
-                            "options": ["Beetles Increase, Hawks Decrease", "Both Increase", "Both Decrease"],
-                            "correct_answer": "Beetles Increase, Hawks Decrease",
-                            "explanation": "Trace the energy flow. Who eats the beetle? Who eats the snake? How does removing one link affect the others?"
-                        },
-                        {
-                            "id": "LS.30",
-                            "text": "How do algae contribute to the cycling of matter in a lake?",
-                            "options": ["Produce Oxygen (O2)", "Produce CO2", "Consume O2"],
-                            "correct_answer": "Produce Oxygen (O2)",
-                            "explanation": "What process do algae use to make energy? What is released during that process?"
-                        }
-                    ]
-                },
-                {
-                    "code": "LS.8.3",
-                    "title": "Evolution & Genetics",
-                    "description": "Fossils, Natural Selection, Adaptation",
-                    "questions": [
-                        {
-                            "id": "LS.4",
-                            "text": "The forelimbs of a toad (4 fingers) and a dolphin (flipper) have similar bone structures. What does this suggest?",
-                            "options": ["Common Ancestry", "Random Chance", "No relation"],
-                            "correct_answer": "Common Ancestry",
-                            "explanation": "Why do you think animals with such different lifestyles would have similar bone patterns?"
-                        },
-                        {
-                            "id": "LS.20",
-                            "text": "What best helps determine if two organisms are the same species?",
-                            "options": ["Physical Structures", "Diets", "Habitats"],
-                            "correct_answer": "Physical Structures",
-                            "explanation": "Is looking similar enough? What other test would usually confirm they are the same species?"
-                        },
-                        {
-                            "id": "LS.21",
-                            "text": "Marine iguanas swim and eat algae; land iguanas don't. They share an ancestor. This divergence is due to:",
-                            "options": ["Natural Selection", "Human Intervention", "Choice"],
-                            "correct_answer": "Natural Selection",
-                            "explanation": "What advantage did swimming give the marine iguana? How did that trait get passed exclusively to them?"
-                        },
-                        {
-                            "id": "LS.44",
-                            "text": "Apatosaurus (150 MYA) and Diplodocus (154 MYA) are similar. What evidence shows common ancestry?",
-                            "options": ["Older similar fossil (160 MYA)", "Newer fossil", "Same age fossil"],
-                            "correct_answer": "Older similar fossil (160 MYA)",
-                            "explanation": "If they are related, where in the timeline would you expect to find their shared ancestor?"
-                        }
-                    ]
-                },
-                {
-                    "code": "ESS.8.1",
-                    "title": "Earth History",
-                    "description": "Fossils, Rock Layers, Earth's Age",
-                    "questions": [
-                        {
-                            "id": "ESS.1",
-                            "text": "Rock layers: Top=Short tails, Middle=Round tails, Bottom=Long tails. What happened?",
-                            "options": ["Developed shorter tails", "Developed longer tails", "No change"],
-                            "correct_answer": "Developed shorter tails",
-                            "explanation": "Which layer represents the oldest time? What pattern do you see moving from old to new?"
-                        },
-                        {
-                            "id": "ESS.12",
-                            "text": "Water moving over falls formed a cave in the shale layer. Why?",
-                            "options": ["Shale weathered faster", "Shale is harder", "Deposited minerals"],
-                            "correct_answer": "Shale weathered faster",
-                            "explanation": "What does the formation of a cave tell you about how that rock resisted the water compared to others?"
-                        },
-                        {
-                            "id": "ESS.14",
-                            "text": "Jody finds a rock downstream. What evidence links it to the falls?",
-                            "options": ["Relative Hardness/Composition", "Volume", "Weight"],
-                            "correct_answer": "Relative Hardness/Composition",
-                            "explanation": "What properties of a rock usually stay the same even after it has moved location?"
-                        }
-                    ]
-                },
-                {
-                    "code": "ESS.8.2",
-                    "title": "Hydrosphere",
-                    "description": "Water Cycle, Ocean Currents, Distribution",
-                    "questions": [
-                        {
-                            "id": "ESS.2",
-                            "text": "How do plants contribute to the water cycle?",
-                            "options": ["Transpiration", "Evaporation", "Precipitation"],
-                            "correct_answer": "Transpiration",
-                            "explanation": "Where does the water go after the plant takes it in? How does it get back to the air?"
-                        },
-                        {
-                            "id": "ESS.3",
-                            "text": "As ocean water moves from the equator to the Arctic, it cools. What happens to its density?",
-                            "options": ["Increases", "Decreases", "Stays same"],
-                            "correct_answer": "Increases",
-                            "explanation": "What happens to the molecules when water cools down? How does that affect how heavy it is for its size?"
-                        }
-                    ]
-                },
-                {
-                    "code": "ESS.8.3",
-                    "title": "Water Quality & Humans",
-                    "description": "Stewardship, Bio-indicators, Eutrophication",
-                    "questions": [
-                        {
-                            "id": "ESS.5",
-                            "text": "How can people be good stewards of water resources?",
-                            "options": ["Limiting nonessential usage", "Building dams", "Using more wells"],
-                            "correct_answer": "Limiting nonessential usage",
-                            "explanation": "What does 'stewardship' mean to you? Which action helps preserve the resource for the future?"
-                        },
-                        {
-                            "id": "ESS.29",
-                            "text": "Nutrient pollution increases algae. Bacteria feed on dying algae. What is the effect of the bacteria?",
-                            "options": ["Decrease Dissolved Oxygen", "Increase Oxygen", "Feed on fish"],
-                            "correct_answer": "Decrease Dissolved Oxygen",
-                            "explanation": "What do bacteria need to survive as they decompose matter? Where do they get it from?"
-                        }
-                    ]
-                },
-                {
-                    "code": "ESS.8.4",
-                    "title": "Energy & Climate",
-                    "description": "Renewable/Non-renewable, Global Climate Change",
-                    "questions": [
-                        {
-                            "id": "ESS.6",
-                            "text": "Is Geothermal energy renewable or nonrenewable?",
-                            "options": ["Renewable", "Nonrenewable"],
-                            "correct_answer": "Renewable",
-                            "explanation": "What is the source of geothermal energy? Is that source likely to run out soon?"
-                        },
-                        {
-                            "id": "ESS.7",
-                            "text": "Permafrost melts due to warming => releases greenhouse gases. What does this cause?",
-                            "options": ["More warming (Feedback loop)", "Cooling", "Less gases"],
-                            "correct_answer": "More warming (Feedback loop)",
-                            "explanation": "If specific gases trap heat, and melting releases more of them, what happens to the temperature?"
-                        },
-                        {
-                            "id": "ESS.35",
-                            "text": "Riding a bike instead of driving helps fossil fuels how?",
-                            "options": ["Decreases depletion rate", "Increases reserves", "No effect"],
-                            "correct_answer": "Decreases depletion rate",
-                            "explanation": "Think about supply and demand. If we use less today, what happens to the supply for tomorrow?"
-                        },
-                        {
-                            "id": "ESS.34",
-                            "text": "Graph showing temperature anomalies increasing from 1960 to 2023 indicates:",
-                            "options": ["Overall Warming Trend", "Overall Cooling Trend", "No Trend"],
-                            "correct_answer": "Overall Warming Trend",
-                            "explanation": "When you look at the line over many years, which direction is it generally pointing?"
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-};
+// pedagogicalData is handled by loader.js
+const pedagogyData = window.pedagogyData;
 
 // Application State
 const state = {
@@ -326,390 +42,937 @@ const state = {
     isSpeaking: false,
     voices: [],
     autoListen: false,
-    questionAttempts: 0
+    currentDifficulty: "Medium", // Default difficulty
+    consecutiveCorrect: 0,
+    speechGenId: 0
 };
 
-// Application Logic
-const initApp = () => {
-    // DOM Elements - Selected Inside Event Listener to ensure they exist
-    const robotEl = document.querySelector('.avatar-img');
-    const messagesEl = document.querySelector('.messages');
-    const controlsEl = document.querySelector('.controls');
-    const startOverlay = document.getElementById('start-overlay');
-    const startBtn = document.getElementById('start-btn');
+// HYBRID CONFIGURATION
+// Voice: False = Browser TTS (Free)
+// Generation: False = Local Questions Only (Free)
+// Chat: True = OpenAI Analysis (Paid but Cheap)
+const appConfig = {
+    useElevenLabs: false,
+    useOpenAIGeneration: false,
+    useOpenAIChat: true
+};
 
-    // Speech Synthesis Setup
+// --- GLOBAL HELPER FUNCTIONS ---
+
+function fallbackSpeak(text, callback) {
     const synth = window.speechSynthesis;
-    let recognition;
+    if (synth.speaking) synth.cancel();
 
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+
+    if (!state.voices || state.voices.length === 0) {
+        state.voices = synth.getVoices();
+    }
+
+    const preferredVoice = state.voices.find(v =>
+        v.name.includes('Zira') ||
+        v.name.includes('Google US English') ||
+        v.name.includes('Female')
+    ) || state.voices.find(v => v.lang.includes('en'));
+
+    if (preferredVoice) {
+        utterance.voice = preferredVoice;
+        console.log("Selected Voice:", preferredVoice.name);
+    } else {
+        console.log("Using Browser Default Voice");
+    }
+
+    utterance.onend = () => {
+        if (callback) callback();
+        // Access recognition reliably via window or state if needed
+        if (state.wasAuto_temp && window.recognition) {
+            try { window.recognition.start(); } catch (e) { }
+        }
+    };
+
+    synth.speak(utterance);
+}
+
+async function speak(text, callback) {
+    const robotEl = document.querySelector('.avatar-img');
+    const synth = window.speechSynthesis;
+
+    // Pre-process text for better pronunciation
+    const speechText = text
+        .replace(/[\u00B0\u00BA]F/g, " degrees Fahrenheit")
+        .replace(/[\u00B0\u00BA]C/g, " degrees Celsius")
+        .replace(/(\d+)\s?F\b/g, "$1 degrees Fahrenheit")
+        .replace(/(\d+)\s?C\b/g, "$1 degrees Celsius")
+        .replace(/\bNC\b/g, "North Carolina")
+        .replace(/\bvs\./g, "versus");
+
+    console.log("Speaking:", speechText);
+
+    if (!state.speechGenId) state.speechGenId = 0;
+    state.speechGenId++;
+    const myGenId = state.speechGenId;
+
+    if (synth.speaking) synth.cancel();
+
+    if (state.currentAudio) {
+        state.currentAudio.pause();
+        state.currentAudio = null;
+    }
+
+    if (state.isListening && window.recognition) {
+        state.wasAuto_temp = state.autoListen;
+        window.recognition.stop();
+    }
+
+    state.isSpeaking = true;
+    if (robotEl) robotEl.classList.add('speaking');
+
+    if (!appConfig.useElevenLabs) {
+        fallbackSpeak(speechText, callback);
+        return;
+    }
+
+    try {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${secrets.elevenLabsVoiceId}`, {
+            method: 'POST',
+            headers: {
+                'xi-api-key': secrets.elevenLabsApiKey,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: `... ${speechText}`, // Add detailed pause for "Awesome" issue
+                model_id: "eleven_turbo_v2_5",
+                voice_settings: {
+                    stability: 0.35,
+                    similarity_boost: 0.8,
+                    style: 0.5,
+                    use_speaker_boost: true
+                }
+            })
+        });
+
+        if (!response.ok) throw new Error(`ElevenLabs API Error: ${response.status}`);
+        const blob = await response.blob();
+        if (myGenId !== state.speechGenId) return;
+
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
+        state.currentAudio = audio;
+
+        audio.onended = () => {
+            if (state.currentAudio === audio) {
+                state.isSpeaking = false;
+                state.currentAudio = null;
+                if (robotEl) robotEl.classList.remove('speaking');
+                if (callback) callback();
+                if (state.wasAuto_temp && window.recognition) {
+                    setTimeout(() => { try { window.recognition.start(); } catch (e) { } }, 500);
+                }
+            }
+        };
+
+        if (robotEl) robotEl.classList.add('speaking');
+        audio.play();
+
+    } catch (error) {
+        if (myGenId !== state.speechGenId) return;
+        console.error("TTS Error:", error);
+        state.isSpeaking = false;
+        if (robotEl) robotEl.classList.remove('speaking');
+        fallbackSpeak(speechText, callback);
+    }
+}
+
+function addMessage(text, sender) {
+    const messagesEl = document.querySelector('.messages');
+    if (!messagesEl) return;
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${sender}`;
+    msgDiv.textContent = text;
+    messagesEl.appendChild(msgDiv);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+// --- CORE APP FUNCTIONS (GLOBAL) ---
+
+window.startApp = function () {
+    console.log("Start button clicked!");
+    state.autoListen = true;
+    const startOverlay = document.getElementById('start-overlay');
+    if (startOverlay) startOverlay.style.display = 'none';
+
+    // Show Chat Area (hidden initially)
+    const chatArea = document.querySelector('.chat-area');
+    if (chatArea) chatArea.classList.add('visible');
+
+    addMessage(pedagogyData.intro_message, 'sestin');
+    speak(pedagogyData.intro_message, () => {
+        renderGrades();
+    });
+
+    // --- SESSION TIMER LOGIC ---
+    const SESSION_DURATION = 30 * 60 * 1000; // 30 mins
+    const WARNING_TIME = 25 * 60 * 1000;     // 25 mins
+
+    // Warning
+    setTimeout(() => {
+        const studentName = state.currentUser ? state.currentUser.name.split(' ')[0] : 'Scientist';
+        const warningMsg = `Attention Scientist ${studentName}. We have 5 minutes remaining in today's session. Let's make them count!`;
+        addMessage(`⏰ ${warningMsg}`, 'sestin');
+        speak(warningMsg);
+    }, WARNING_TIME);
+
+    // End Session (Logout)
+    setTimeout(() => {
+        const studentName = state.currentUser ? state.currentUser.name.split(' ')[0] : 'Scientist';
+        const endMsg = `Great work today, Scientist ${studentName}! Session complete. Logging out now...`;
+        speak(endMsg);
+        addMessage(`🛑 ${endMsg}`, 'sestin');
+
+        // Wait for speech to start then reload
+        setTimeout(() => {
+            window.location.reload();
+        }, 5000);
+    }, SESSION_DURATION);
+
+    // --- DAILY ACTIVITY TRACKING ---
+    // Update every 1 minute (60,000 ms)
+    setInterval(() => {
+        if (typeof updateDailyActivity === 'function') {
+            updateDailyActivity();
+        }
+    }, 60000);
+    // Log immediately on start
+    if (typeof updateDailyActivity === 'function') {
+        updateDailyActivity();
+    }
+};
+
+function renderGrades() {
+    state.currentPhase = 'grade_selection';
+    const ctrl = document.querySelector('.controls');
+    if (!ctrl) return;
+    ctrl.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'options-grid';
+
+    pedagogyData.grades.forEach(g => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = g.title;
+        btn.onclick = () => { addMessage(g.title, 'user'); selectGrade(g); };
+        grid.appendChild(btn);
+    });
+    ctrl.appendChild(grid);
+}
+
+function selectGrade(grade) {
+    state.currentGrade = grade;
+    addMessage(grade.intro_message, 'sestin');
+    renderStrands(grade.intro_message);
+}
+
+function renderStrands(overrideSpeech = null) {
+    state.currentPhase = 'topic_selection';
+    const controlsEl = document.querySelector('.controls');
+    controlsEl.innerHTML = '';
+
+    const container = document.createElement('div');
+    container.className = 'strands-container';
+    // Removed direct style manipulation to let CSS handle it via .controls
+    container.style.width = '100%';
+
+    const randomBtn = document.createElement('button');
+    randomBtn.className = 'strand-card';
+    randomBtn.style.background = 'linear-gradient(135deg, #ec4899, #8b5cf6)';
+    randomBtn.style.textAlign = 'center';
+    randomBtn.style.display = 'block';
+    randomBtn.style.width = '100%';
+    randomBtn.style.padding = '1.5rem';
+    randomBtn.style.textAlign = 'center';
+    randomBtn.style.marginBottom = '3rem'; // Added Strong Margin
+    randomBtn.innerHTML = `<span style="font-size:1.5rem; color: white; font-weight: 800;">🎲 Quick Random Question</span>`;
+    randomBtn.style.cursor = 'pointer';
+    randomBtn.style.marginBottom = '2.5rem'; // Force margin to prevent overlap
+
+    randomBtn.onclick = () => startRandomQuestion();
+    container.appendChild(randomBtn);
+
+    // ... (rest of renderStrands) ...
+
+    // Helper for Daily Tracking
+    function updateDailyActivity() {
+        if (!state.currentUser) return;
+        try {
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            const log = JSON.parse(localStorage.getItem('tmsa_activity_log') || '{}');
+            const user = state.currentUser.username;
+
+            if (!log[user]) log[user] = { history: {} };
+            if (!log[user].history[today]) log[user].history[today] = 0;
+
+            log[user].last_active = Date.now();
+            log[user].history[today] += 1; // Add 1 minute
+
+            localStorage.setItem('tmsa_activity_log', JSON.stringify(log));
+            console.log(`Activity logged for ${user}: ${log[user].history[today]} mins`);
+        } catch (e) {
+            console.error("Tracking Error:", e);
+        }
+    }
+
+    state.currentGrade.strands.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'strand-card';
+        const header = document.createElement('div');
+        header.className = 'strand-header';
+        header.innerHTML = `<span>${s.code || ''}</span> ${s.title}`;
+        card.appendChild(header);
+
+        const list = document.createElement('ul');
+        list.className = 'topic-list';
+        const visibleQuestions = s.questions.slice(0, 5);
+
+        visibleQuestions.forEach((q, idx) => {
+            const item = document.createElement('li');
+            item.className = 'topic-item';
+            const topicDisplay = q.topic ? q.topic : `Question ${idx + 1}`;
+            item.textContent = `🔬 ${topicDisplay}`;
+            item.onclick = () => selectTopic(q, s);
+            list.appendChild(item);
+        });
+
+        if (s.questions.length > 5) {
+            const more = document.createElement('li');
+            more.className = 'topic-item';
+            more.style.fontStyle = 'italic';
+            more.innerText = `...and ${s.questions.length - 5} more questions (Use Random Button)`;
+            list.appendChild(more);
+        }
+
+        card.appendChild(list);
+        container.appendChild(card);
+    });
+
+    controlsEl.appendChild(container);
+
+    if (overrideSpeech) {
+        speak(overrideSpeech);
+    } else {
+        speak("Here are the topics. Pick one and let's get started, Scientist!");
+    }
+}
+
+function selectTopic(q, s) {
+    if (!q || !s) return;
+
+    state.currentPhase = 'discussion';
+    state.currentQuestion = q;
+    state.currentStrand = s;
+    state.questionAttempts = 0;
+
+    startComprehensionPhase();
+}
+
+function startComprehensionPhase() {
+    state.discussionPhase = 'comprehension';
+    const q = state.currentQuestion;
+    const s = state.currentStrand;
+    const controlsEl = document.querySelector('.controls');
+    controlsEl.innerHTML = '';
+
+    addMessage(`🎯 Standard: ${s.code || ''} - ${s.title}`, 'sestin');
+    addMessage(q.text, 'sestin');
+
+    const cleanTitle = s.title;
+    const intros = [
+        `Okay Scientist, we're tackling ${cleanTitle}.`,
+        `Alright Scientist, focusing on ${cleanTitle}.`
+    ];
+    const intro = intros[Math.floor(Math.random() * intros.length)];
+    const hooks = [
+        "What is your first thought?",
+        "What immediately jumps out at you?",
+        "What do you think? What are they actually looking for?"
+    ];
+    const hook = hooks[Math.floor(Math.random() * hooks.length)];
+
+    speak(`${intro} ${q.text} ${hook}`);
+    addMessage(hook, 'sestin');
+    renderComprehensionControls();
+
+    // --- INACTIVITY TIMER (10s) ---
+    // Kept only for the verbal prompt, but buttons are now always visible
+    if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
+    state.inactivityTimer = setTimeout(() => {
+        if (state.discussionPhase === 'comprehension') {
+            const prompt = "It is okay if you are stuck! You can try a different question if you like.";
+            speak(prompt);
+            addMessage(`🤔 ${prompt}`, 'sestin');
+        }
+    }, 10000); // 10 seconds
+}
+
+function renderComprehensionControls() {
+    const controlsEl = document.querySelector('.controls');
+    const grid = document.createElement('div');
+    grid.className = 'options-grid';
+
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.style.background = '#4b5563';
+    btn.textContent = "💡 Show Options (I've analyzed it)";
+    btn.onclick = () => {
+        if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
+        presentOptions();
+    };
+
+    const speakBtn = document.createElement('button');
+    speakBtn.id = 'mic-btn';
+    speakBtn.className = 'option-btn';
+    speakBtn.textContent = "🎤 Voice Answer";
+    speakBtn.onclick = () => {
+        if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
+        toggleMic();
+    };
+
+    const decomposeBtn = document.createElement('button');
+    decomposeBtn.className = 'option-btn';
+    decomposeBtn.style.background = '#8b5cf6';
+    decomposeBtn.textContent = "🧩 Decompose: Break it down";
+    decomposeBtn.onclick = () => {
+        if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
+        decomposeQuestion();
+    };
+
+    const newQBtn = document.createElement('button');
+    newQBtn.className = 'option-btn';
+    newQBtn.style.background = '#f59e0b'; // Amber color
+    newQBtn.textContent = "🔄 Try Different Question";
+    newQBtn.onclick = () => {
+        if (state.inactivityTimer) clearTimeout(state.inactivityTimer);
+        startRandomQuestion();
+    };
+
+
+    grid.appendChild(speakBtn);
+    grid.appendChild(decomposeBtn);
+    grid.appendChild(btn);
+    grid.appendChild(newQBtn);
+
+    controlsEl.appendChild(grid);
+}
+
+function decomposeQuestion() {
+    const controlsEl = document.querySelector('.controls');
+    const msgDisplay = "Time to break it down! 🧩 Think about baking a cake. Sugar is needed for the cake mix (Important -> Highlight it). The Serving Plate is for AFTER the cake is baked (Not Important Now -> Ignore it). In this question, what is the 'Sugar' we need to highlight?";
+    const msgSpeak = "Alright, Time to break it down! Think about baking a cake. Sugar is needed for the cake mix, which is important, so we need to highlight it. The Serving Plate is for AFTER the cake is baked, so it is not important right now and we can ignore it. In this question, what is the 'Sugar' we need to highlight?";
+
+    addMessage(msgDisplay, 'sestin');
+    speak(msgSpeak, () => {
+        if (state.silenceTimer) clearTimeout(state.silenceTimer);
+        state.silenceTimer = setTimeout(() => {
+            if (appConfig.useOpenAIChat) {
+                addMessage("(Thinking... Scanning for signals...)", 'sestin');
+                // Assume chatWithAI is globally available or defined below
+                if (typeof chatWithAI === 'function') {
+                    chatWithAI(state.currentQuestion.text, {
+                        question: state.currentQuestion.text,
+                        topic: state.currentStrand.title,
+                        mode: 'hint'
+                    }).then(aiHint => {
+                        if (aiHint) {
+                            const finalHint = `Here is a hint: ${aiHint}`;
+                            speak(finalHint);
+                            addMessage(finalHint, 'sestin');
+                        } else {
+                            // Fallback with definitions
+                            const topic = state.currentQuestion.topic || state.currentStrand.title;
+
+                            const TOPIC_DEFINITIONS = {
+                                "Producers": "Producers are plants that make their own food from the sun. Think of grass or trees!",
+                                "Consumers": "Consumers are animals that need to eat other living things to survive.",
+                                "Decomposers": "Decomposers break down dead things and turn them back into soil. Like mushrooms!",
+                                "Inertia": "Inertia means an object keeps doing what it's doing until something stops it.",
+                                "Gravity": "Gravity is the invisible force that pulls everything down towards the Earth.",
+                                "Friction": "Friction is a force that slows things down when they rub against each other.",
+                                "Conduction": "Conduction is when heat moves through something solid, like a metal spoon getting hot.",
+                                "Convection": "Convection is when heat moves through liquids or air, like boiling water.",
+                                "Radiation": "Radiation is heat moving through empty space, like the sun warming your face."
+                            };
+
+                            let hintMsg = `Focus on: ${topic}`;
+
+                            // Check for direct match or partial match
+                            const defKey = Object.keys(TOPIC_DEFINITIONS).find(k => topic.includes(k));
+                            if (defKey) {
+                                hintMsg += `. Remember: ${TOPIC_DEFINITIONS[defKey]}`;
+                            } else {
+                                hintMsg += ". Use the 'Show Options' button if you are stuck!";
+                            }
+
+                            speak(hintMsg);
+                            addMessage(`(Thinking... ${hintMsg})`, 'sestin');
+                        }
+                    });
+                }
+            } else {
+                const topicHint = state.currentQuestion.topic || state.currentStrand.title.replace(/^[0-9A-Z\.]+/, '').trim();
+
+                const TOPIC_DEFINITIONS = {
+                    "Producers": "Producers are plants that make their own food from the sun. Think of grass or trees!",
+                    "Consumers": "Consumers are animals that need to eat other living things to survive.",
+                    "Decomposers": "Decomposers break down dead things and turn them back into soil. Like mushrooms!",
+                    "Inertia": "Inertia means an object keeps doing what it's doing until something stops it.",
+                    "Gravity": "Gravity is the invisible force that pulls everything down towards the Earth.",
+                    "Friction": "Friction is a force that slows things down when they rub against each other.",
+                    "Conduction": "Conduction is when heat moves through something solid, like a metal spoon getting hot.",
+                    "Convection": "Convection is when heat moves through liquids or air, like boiling water.",
+                    "Radiation": "Radiation is heat moving through empty space, like the sun warming your face."
+                };
+
+                let hintMsg = `What is this question really asking us? It looks like it is asking us about ${topicHint}.`;
+
+                // Check for direct match or partial match
+                const defKey = Object.keys(TOPIC_DEFINITIONS).find(k => topicHint.includes(k));
+                if (defKey) {
+                    hintMsg += ` Remember: ${TOPIC_DEFINITIONS[defKey]}`;
+                }
+
+                speak(hintMsg);
+                addMessage(`(Thinking... ${hintMsg})`, 'sestin');
+            }
+        }, 4000);
+    });
+
+    const note = document.createElement('div');
+    note.style.margin = "10px";
+    note.style.padding = "10px";
+    note.style.border = "1px dashed #a78bfa";
+    note.innerHTML = `<strong>Abstraction Strategy:</strong><br>✅ Important -> Highlight it<br>❌ Not Important -> Ignore it now (think later)`;
+    controlsEl.prepend(note);
+}
+
+function presentOptions() {
+    state.discussionPhase = 'selection';
+    const q = state.currentQuestion;
+    addMessage("Hypothesis Mode: Which one feels right?", 'sestin');
+    renderOptions(q.options);
+    speak("Here are the choices. Which one calls out to you, Scientist?");
+}
+
+function renderOptions(options) {
+    const controlsEl = document.querySelector('.controls');
+    const grid = document.createElement('div');
+    grid.className = 'options-grid';
+
+    options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.onclick = () => selectOption(opt);
+        grid.appendChild(btn);
+    });
+    controlsEl.appendChild(grid);
+}
+
+function selectOption(optionText) {
+    state.selectedOption = optionText;
+    state.discussionPhase = 'reasoning';
+    addMessage(`You selected: ${optionText}`, 'user');
+    const challenge = `Interesting choice. Why do you think ${optionText} is the answer?`;
+    addMessage(challenge, 'sestin');
+    speak(challenge, () => {
+        if (state.silenceTimer) clearTimeout(state.silenceTimer);
+        state.silenceTimer = setTimeout(() => {
+            if (state.discussionPhase === 'reasoning') {
+                showReasoningScaffolds();
+            }
+        }, 4000);
+    });
+
+    const controlsEl = document.querySelector('.controls');
+    controlsEl.innerHTML = '';
+    const note = document.createElement('p');
+    note.textContent = "🎤 Tell me your reason using 'Because'...";
+    note.style.textAlign = 'center';
+    controlsEl.appendChild(note);
+
+    const micBtn = document.createElement('button');
+    micBtn.id = 'mic-btn';
+    micBtn.className = 'option-btn active';
+    micBtn.innerHTML = 'Listening...';
+    micBtn.onclick = toggleMic;
+    controlsEl.appendChild(micBtn);
+
+    if (!state.isListening && window.recognition) window.recognition.start();
+}
+
+function showReasoningScaffolds() {
+    if (document.getElementById('scaffold-container')) return;
+    const brainstormMsgDisplay = "Let's do this. You are a Scientist. Science is about understanding what is happening in the world. So we will understand what is happening here now. But let's start small. Let's do some abstraction strategy. Take 4 or 5 seconds to think. I'll be right here waiting for you.";
+    const brainstormMsgSpeak = "Let's do this. You are a Scientist. Science is about understanding what is happening in the world. So we will understand what is happening here now. But let's start small. Let's do some abstraction strategy. Remember what that is? We focus on what is important, and for now we ignore concepts that are not very important. Take 4 or 5 seconds to think. I'll be right here waiting for you.";
+
+    addMessage(brainstormMsgDisplay, 'sestin');
+
+    speak(brainstormMsgSpeak, () => {
+        if (state.silenceTimer) clearTimeout(state.silenceTimer);
+        state.silenceTimer = setTimeout(() => {
+            const topicHint = state.currentQuestion.topic || state.currentStrand.title.replace(/^[0-9A-Z\.]+/, '').trim();
+            const hintMsg = `What is this question really asking us? It looks like it is asking us about ${topicHint}.`;
+            speak(hintMsg);
+            addMessage(`(Thinking... ${hintMsg})`, 'sestin');
+        }, 4000);
+    });
+
+    const container = document.createElement('div');
+    container.id = 'scaffold-container';
+    container.className = 'options-grid';
+    container.style.marginTop = '1rem';
+    container.style.animation = 'fadeIn 0.5s';
+
+    const starters = [
+        "Because it has...",
+        "The evidence shows...",
+        "I chose this because...",
+        "It matches the definition..."
+    ];
+    starters.forEach(text => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.style.fontSize = '0.9rem';
+        btn.textContent = text;
+        btn.onclick = () => { addMessage(text + "...", 'user'); };
+        container.appendChild(btn);
+    });
+    const controlsEl = document.querySelector('.controls');
+    controlsEl.appendChild(container);
+}
+
+function finalizeAnswer() {
+    const q = state.currentQuestion;
+    const isCorrect = state.selectedOption.toLowerCase().startsWith(q.answer.toLowerCase().charAt(0));
+
+    if (isCorrect) {
+        addMessage("Correct! Amazing work.", 'sestin');
+        speak("You nailed it! That is scientifically accurate.");
+        state.consecutiveCorrect++;
+        if (state.consecutiveCorrect >= 3) {
+            // Offer challenge - implementation simplified for this refactor
+            // offerChallenge(); 
+            // Just auto upgrade difficulty for now
+            if (state.currentDifficulty === "Easy") state.currentDifficulty = "Medium";
+        }
+    } else {
+        addMessage(`Not quite. The correct answer was ${q.answer}.`, 'sestin');
+        speak(`Actually, the evidence points to ${q.answer}. Let's learn from this.`);
+        state.consecutiveCorrect = 0;
+    }
+
+    setTimeout(() => {
+        renderStrands(); // Go back to menu
+    }, 4000);
+}
+
+function toggleMic() {
+    if (!window.recognition) return;
+    if (state.isListening) {
+        window.recognition.stop();
+    } else {
+        window.recognition.start();
+    }
+}
+
+function updateMicButton() {
+    const btn = document.getElementById('mic-btn');
+    if (btn) {
+        if (state.isListening) {
+            btn.innerHTML = '🛑 Stop Listening';
+            btn.style.background = '#ef4444';
+        } else {
+            btn.innerHTML = '🎤 Voice Answer';
+            btn.style.background = '#2563eb';
+        }
+    }
+}
+
+function startRandomQuestion() {
+    // Basic implementation for safety
+    if (!state.currentGrade) return;
+    const allQ = state.currentGrade.strands.flatMap(s => s.questions.map(q => ({ q, s })));
+    const random = allQ[Math.floor(Math.random() * allQ.length)];
+    selectTopic(random.q, random.s);
+}
+
+// Real AI Chat Implementation (Netlify Function + Local Fallback)
+async function chatWithAI(text, context) {
+    console.log("AI Chat Request:", text, context);
+
+    if (!appConfig.useOpenAIChat) {
+        console.warn("OpenAI Chat is disabled in config.");
+        return null;
+    }
+
+    // Construct System Prompt
+    let systemPrompt = "You are Sestin, a helpful and encouraging AI science tutor for middle school students.";
+    if (context) {
+        if (context.grade) systemPrompt += ` The student is in ${context.grade}.`;
+        if (context.topic) systemPrompt += ` The current topic is ${context.topic}.`;
+
+        if (context.mode === 'hint') {
+            systemPrompt += " The student is stuck on a question. Provide a helpful, scaffolding hint without giving away the direct answer. Use an analogy if possible. Keep it short (2-3 sentences max).";
+        } else if (context.mode === 'decompose') {
+            systemPrompt += " Help the student break down the question. Identify the key terms and what the question is asking. Do not answer it yet.";
+        } else if (context.mode === 'explain') {
+            systemPrompt += " Explain the concept clearly and simply.";
+        }
+    }
+
+    const payload = {
+        model: "gpt-4o-mini",
+        messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: text }
+        ],
+        temperature: 0.7,
+        max_tokens: 150
+    };
+
+    // 1. Try Netlify Function (Secure Production Way)
+    try {
+        const response = await fetch("/.netlify/functions/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const aiMessage = data.choices[0].message.content.trim();
+            console.log("AI Response (via Netlify):", aiMessage);
+            return aiMessage;
+        } else {
+            console.warn("Netlify Function failed, trying local fallback...", response.status);
+        }
+    } catch (e) {
+        console.warn("Netlify Function unreachable, trying local fallback...", e);
+    }
+
+    // 2. Local Fallback (Dev Mode with secrets.js)
+    try {
+        if (typeof secrets !== 'undefined' && secrets.openaiApiKey) {
+            console.log("Using Local API Key");
+            const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${secrets.openaiApiKey}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(`OpenAI API Error: ${errData.error?.message || response.statusText}`);
+            }
+
+            const data = await response.json();
+            const aiMessage = data.choices[0].message.content.trim();
+            console.log("AI Response (via Local Key):", aiMessage);
+            return aiMessage;
+        } else {
+            throw new Error("No local API key found.");
+        }
+    } catch (error) {
+        console.error("ChatWithAI Failed (All methods):", error);
+        addMessage(`(System: AI connection failed. Check console for details.)`, 'system');
+        return null;
+    }
+}
+
+
+// --- PHASE HANDLERS UTILIZED BY HANDLEINPUT ---
+// (Already defined above)
+
+
+// --- SIGN UP LOGIC ---
+
+window.toggleSignUp = function () {
+    const loginSec = document.getElementById('login-section');
+    const signupSec = document.getElementById('signup-section');
+    if (!loginSec || !signupSec) return;
+
+    if (loginSec.style.display === 'none') {
+        loginSec.style.display = 'block';
+        signupSec.style.display = 'none';
+    } else {
+        loginSec.style.display = 'none';
+        signupSec.style.display = 'block';
+    }
+};
+
+window.handleSignUp = function () {
+    const nameInput = document.getElementById('signup-name');
+    const surnameInput = document.getElementById('signup-surname');
+    const schoolInput = document.getElementById('signup-school');
+
+    const name = nameInput.value.trim();
+    const surname = surnameInput.value.trim();
+    const school = schoolInput.value;
+
+    if (!name || !surname || !school) {
+        alert("Lütfen tüm alanları doldurun! 📝 (Please fill all fields)");
+        return;
+    }
+
+    // Generate Username: ali.yilmaz (lowercase, turkish chars replaced ideally but simple replacement okay)
+    const username = `${name.toLowerCase()}.${surname.toLowerCase()}`
+        .replace(/[^a-z0-9.]/g, '')
+        .replace(/\s+/g, '');
+
+    const password = "123"; // Default simple password
+
+    const newUser = {
+        username: username,
+        password: password,
+        name: `${name} ${surname}`,
+        school: school,
+        isCustom: true
+    };
+
+    // Add to runtime
+    if (!window.studentRoster) window.studentRoster = [];
+    window.studentRoster.push(newUser);
+
+    // Persist
+    const currentCustom = JSON.parse(localStorage.getItem('tmsa_custom_students') || '[]');
+    currentCustom.push(newUser);
+    localStorage.setItem('tmsa_custom_students', JSON.stringify(currentCustom));
+
+    alert(`✅ Kayıt Başarılı! (Registration Complete)\n\nKullanıcı Adın: ${username}\nŞifre: 123`);
+
+    // Auto Login
+    state.currentUser = newUser;
+    const loginOverlay = document.getElementById('login-overlay');
+    const startOverlay = document.getElementById('start-overlay');
+    const welcomeHeader = document.getElementById('welcome-header');
+
+    if (loginOverlay) loginOverlay.style.display = 'none';
+    if (startOverlay) startOverlay.style.display = 'flex';
+
+    if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${name}?`;
+    pedagogyData.intro_message = `Welcome Scientist ${name} from ${school} to TMSA Curie. Please select your grade.`;
+
+    console.log("Logged in new user:", newUser);
+};
+
+
+// --- INITIALIZATION ---
+
+const initApp = () => {
+    // Load Custom Students from LocalStorage
+    try {
+        const storedRoster = JSON.parse(localStorage.getItem('tmsa_custom_students') || '[]');
+        if (storedRoster.length > 0) {
+            if (!window.studentRoster) window.studentRoster = [];
+
+            // Avoid duplicates based on username
+            storedRoster.forEach(s => {
+                if (!window.studentRoster.find(existing => existing.username === s.username)) {
+                    window.studentRoster.push(s);
+                }
+            });
+            console.log("Loaded custom students:", storedRoster.length);
+        }
+    } catch (e) {
+        console.error("Error loading custom roster:", e);
+    }
+
+    // Check if data is ready
+    if (!window.pedagogyData || window.pedagogyData.grades.length === 0) {
+        console.log("Waiting for data...");
+        document.addEventListener('pedagogyDataReady', initApp);
+        return;
+    }
+
+    const robotEl = document.querySelector('.avatar-img');
+
+    // Login Elements
+    const loginOverlay = document.getElementById('login-overlay');
+    const usernameInput = document.getElementById('username-input');
+    const passwordInput = document.getElementById('password-input');
+    const loginBtn = document.getElementById('login-btn');
+    const loginError = document.getElementById('login-error');
+
+    // Start Elements
+    const startOverlay = document.getElementById('start-overlay');
+    const welcomeHeader = document.getElementById('welcome-header');
+
+    // Login Logic
+    function checkLogin() {
+        if (!usernameInput) return; // safety
+        const user = usernameInput.value.trim().toLowerCase();
+        const pass = passwordInput.value.trim();
+        const student = window.studentRoster?.find(s => s.username.toLowerCase() === user && s.password === pass);
+
+        if (student) {
+            state.currentUser = student;
+            if (loginOverlay) loginOverlay.style.display = 'none';
+            if (startOverlay) startOverlay.style.display = 'flex';
+            if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${student.name}?`;
+            pedagogyData.intro_message = `Welcome Scientist ${student.name} to TMSA Curie. Please select your grade.`;
+        } else {
+            if (loginError) loginError.style.display = 'block';
+            if (passwordInput) passwordInput.value = '';
+        }
+    }
+
+    if (loginBtn) loginBtn.onclick = checkLogin;
+    if (passwordInput) passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkLogin();
+    });
+
+
+    // Initialize Speech Recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = 'en-US';
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        window.recognition = new SpeechRecognition(); // Global for access
+        window.recognition.lang = 'en-US';
+        window.recognition.continuous = false;
+        window.recognition.interimResults = false;
 
-        recognition.onstart = () => {
+        window.recognition.onstart = () => {
             state.isListening = true;
             updateMicButton();
-            robotEl.classList.add('listening');
+            if (robotEl) robotEl.classList.add('listening');
         };
 
-        recognition.onend = () => {
+        window.recognition.onend = () => {
             state.isListening = false;
             updateMicButton();
-            robotEl.classList.remove('listening');
+            if (robotEl) robotEl.classList.remove('listening');
         };
 
-        recognition.onresult = (event) => {
+        window.recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
             addMessage(transcript, 'user');
             handleInput(transcript);
         };
 
-        recognition.onerror = (event) => {
+        window.recognition.onerror = (event) => {
             console.log("Speech Error:", event.error);
             state.isListening = false;
             updateMicButton();
         };
     }
 
-    // Helper Functions
-    async function speak(text, callback) {
-        console.log("Speaking (ElevenLabs Proxy):", text);
-
-        if (state.isListening && recognition) {
-            state.wasAuto_temp = state.autoListen;
-            recognition.stop();
-        }
-
-        state.isSpeaking = true;
-        robotEl.classList.add('speaking');
-
-        try {
-            const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${secrets.elevenLabsVoiceId}`, {
-                method: 'POST',
-                headers: {
-                    'xi-api-key': secrets.elevenLabsApiKey,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    text: text,
-                    model_id: "eleven_monolingual_v1",
-                    voice_settings: {
-                        stability: 0.5,
-                        similarity_boost: 0.75
-                    }
-                })
-            });
-
-            if (!response.ok) throw new Error(`ElevenLabs API Error: ${response.status}`);
-
-            const blob = await response.blob();
-            const audioUrl = URL.createObjectURL(blob);
-            const audio = new Audio(audioUrl);
-
-            audio.onended = () => {
-                state.isSpeaking = false;
-                robotEl.classList.remove('speaking');
-                if (callback) callback();
-
-                if (state.wasAuto_temp && recognition) {
-                    setTimeout(() => {
-                        try { recognition.start(); } catch (e) { }
-                    }, 500);
-                }
-            };
-
-            audio.play();
-
-        } catch (error) {
-            console.error("TTS Error:", error);
-            state.isSpeaking = false;
-            robotEl.classList.remove('speaking');
-            fallbackSpeak(text, callback);
-        }
-    }
-
-    function fallbackSpeak(text, callback) {
-        if (synth.speaking) synth.cancel();
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        utterance.rate = 0.85; // Slower speed
-        const voice = state.voices.find(v =>
-            v.name.includes('Zira') ||
-            v.name.includes('Google US English') ||
-            v.name.includes('Samantha') ||
-            v.name.includes('Female')
-        ) || state.voices.find(v => v.lang.includes('en'));
-
-        if (voice) utterance.voice = voice;
-
-        utterance.onend = () => {
-            if (callback) callback();
-            if (state.wasAuto_temp && recognition) recognition.start();
-        };
-
-        synth.speak(utterance);
-    }
-
-    function addMessage(text, sender) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${sender}`;
-        msgDiv.textContent = text;
-        messagesEl.appendChild(msgDiv);
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-
-    function handleInput(text) {
-        const lowerText = text.toLowerCase().trim();
-
-        if (state.currentPhase === 'grade_selection') {
-            let grade = null;
-            if (lowerText.includes('5') || lowerText.includes('five') || lowerText.includes('fifth')) {
-                grade = pedagogyData.grades.find(g => g.id === '5th');
-            } else if (lowerText.includes('8') || lowerText.includes('eight') || lowerText.includes('eighth')) {
-                grade = pedagogyData.grades.find(g => g.id === '8th');
-            }
-
-            if (grade) {
-                addMessage(`✅ Matched: ${grade.title}`, 'sestin');
-                selectGrade(grade);
-            } else {
-                speak("I heard you, but I need you to choose 5th or 8th Grade.");
-            }
-        }
-        else if (state.currentPhase === 'strand_selection') {
-            const strand = state.currentGrade.strands.find(s => lowerText.includes(s.title.toLowerCase()));
-            if (strand) {
-                selectStrand(strand);
-            } else {
-                speak("Please select a topic.");
-            }
-        }
-        else if (state.currentPhase === 'topic_selection') {
-            speak("Please click the topic you would like to discuss.");
-        }
-        else if (state.currentPhase === 'question') {
-            checkAnswer(text);
-        }
-    }
-
-    function startApp() {
-        console.log("Start button clicked!");
-        state.autoListen = true;
-        if (startOverlay) startOverlay.style.display = 'none';
-
-        addMessage(pedagogyData.intro_message, 'sestin');
-        speak(pedagogyData.intro_message, () => {
-            renderGrades();
-        });
-    }
-    // Expose startApp globally for debugging or fallback HTML onclick
-    window.startApp = startApp;
-
-    function renderGrades() {
-        state.currentPhase = 'grade_selection';
-        controlsEl.innerHTML = '';
-        const grid = document.createElement('div');
-        grid.className = 'options-grid';
-
-        pedagogyData.grades.forEach(g => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.textContent = g.title;
-            btn.onclick = () => { addMessage(g.title, 'user'); selectGrade(g); };
-            grid.appendChild(btn);
-        });
-        controlsEl.appendChild(grid);
-    }
-
-    function selectGrade(grade) {
-        state.currentGrade = grade;
-        addMessage(grade.intro_message, 'sestin');
-        renderStrands();
-        speak(grade.intro_message);
-    }
-
-    function renderStrands() {
-        state.currentPhase = 'strand_selection';
-        controlsEl.innerHTML = '';
-        const grid = document.createElement('div');
-        grid.className = 'options-grid';
-
-        state.currentGrade.strands.forEach(s => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.textContent = s.title;
-            btn.onclick = () => { addMessage(s.title, 'user'); selectStrand(s); };
-            grid.appendChild(btn);
-        });
-        controlsEl.appendChild(grid);
-    }
-
-    function selectStrand(strand) {
-        state.currentStrand = strand;
-        addMessage(strand.title, 'sestin');
-        renderDiscussionTopics(); // Use the new menu flow
-    }
-
-    function renderDiscussionTopics() {
-        state.currentPhase = 'topic_selection';
-        controlsEl.innerHTML = '';
-        const grid = document.createElement('div');
-        grid.className = 'options-grid';
-
-        const prompt = `Good choice. What specific, scientific phenomenon shall we explore within ${state.currentStrand.title}?`;
-        speak(prompt);
-
-        state.currentStrand.questions.forEach((q, index) => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.textContent = q.text.length > 50 ? q.text.substring(0, 47) + '...' : q.text;
-            btn.onclick = () => { selectTopic(index); };
-            grid.appendChild(btn);
-        });
-
-        controlsEl.appendChild(grid);
-    }
-
-    function selectTopic(index) {
-        state.currentPhase = 'question';
-        state.currentQuestionIndex = index;
-        state.questionAttempts = 0;
-        askQuestion();
-    }
-
-    function askQuestion() {
-        const q = state.currentStrand.questions[state.currentQuestionIndex];
-        addMessage(q.text, 'sestin');
-        renderOptions(q.options);
-        speak(q.text);
-    }
-
-    function checkAnswer(answerText) {
-        const q = state.currentStrand.questions[state.currentQuestionIndex];
-        const correctKeyword = q.correct_answer.toLowerCase().split(' ')[0].toLowerCase();
-        const isMatched = answerText.toLowerCase().includes(correctKeyword);
-
-        if (isMatched || answerText.toLowerCase() === q.correct_answer.toLowerCase()) {
-            state.questionAttempts = 0;
-
-            const deepeningPrompts = [
-                `What evidence have you seen that supports the idea of ${q.correct_answer}?`,
-                `How did you figure out that it is specifically ${q.correct_answer}?`,
-                "What observations in nature connect to that idea?",
-                "Can you think of an example where that applies?"
-            ];
-
-            let response = deepeningPrompts[Math.floor(Math.random() * deepeningPrompts.length)];
-
-            if (q.explanation && Math.random() > 0.3) {
-                response = q.explanation;
-            }
-
-            addMessage(response, 'sestin');
-            speak(response, () => {
-                nextStep();
-            });
-        } else {
-            state.questionAttempts++;
-            if (state.questionAttempts >= 2) {
-                const pivotMsg = `If we look closely at the question "${q.text}", what clues do you see? Let's observe a pattern in the next example.`;
-                addMessage(pivotMsg, 'sestin');
-                speak(pivotMsg, () => {
-                    nextStep();
-                });
-            } else {
-                const feedback = `What makes you think that? What have you noticed that supports that idea?`;
-                addMessage(feedback, 'sestin');
-                speak(feedback);
-            }
-        }
-    }
-
-    function nextStep() {
-        state.currentQuestionIndex++;
-        if (state.currentQuestionIndex < state.currentStrand.questions.length) {
-            askQuestion();
-        } else {
-            const finishMsg = "Topic complete! Let's choose another.";
-            addMessage(finishMsg, 'sestin');
-            speak(finishMsg, () => {
-                renderStrands();
-            });
-        }
-    }
-
-    function renderOptions(options) {
-        controlsEl.innerHTML = '';
-        const grid = document.createElement('div');
-        grid.className = 'options-grid';
-
-        options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.textContent = opt;
-            btn.onclick = () => {
-                addMessage(opt, 'user');
-                checkAnswer(opt);
-            };
-            grid.appendChild(btn);
-        });
-
-        if (recognition) {
-            const micBtn = document.createElement('button');
-            micBtn.id = 'mic-btn';
-            micBtn.innerHTML = '🎤 Speak Now';
-            micBtn.onclick = toggleMic;
-
-            const status = document.createElement('div');
-            status.id = 'mic-status';
-            status.style.fontSize = '0.8rem';
-            status.style.opacity = '0.7';
-            status.textContent = 'Auto-listening enabled';
-
-            controlsEl.appendChild(grid);
-            controlsEl.appendChild(micBtn);
-            controlsEl.appendChild(status);
-        } else {
-            controlsEl.appendChild(grid);
-        }
-    }
-
-    function updateMicButton() {
-        const btn = document.getElementById('mic-btn');
-        if (btn) {
-            if (state.isListening) {
-                btn.classList.add('active');
-                btn.textContent = 'Listening...';
-            } else {
-                btn.classList.remove('active');
-                btn.textContent = '🎤 Speak';
-            }
-        }
-    }
-
-    function toggleMic() {
-        if (state.isListening) recognition.stop();
-        else recognition.start();
-    }
-
-    // Init Logic
+    // Voices
     window.speechSynthesis.onvoiceschanged = () => {
         state.voices = window.speechSynthesis.getVoices();
     };
-
-    if (startBtn) {
-        startBtn.addEventListener('click', startApp);
-    } else {
-        console.error("Start button not found!");
-    }
+    state.voices = window.speechSynthesis.getVoices();
 };
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-} else {
-    initApp();
-}
+document.addEventListener('DOMContentLoaded', initApp);

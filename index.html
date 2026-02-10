@@ -11,6 +11,64 @@
 
 <body>
 
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="overlay">
+        <div class="overlay-content">
+            <!-- LOGIN SECTION -->
+            <div id="login-section">
+                <h1>🔐 Scientist Access</h1>
+                <p>Please identify yourself to enter the lab.</p>
+                <input type="text" id="username-input" placeholder="Scientist ID (ad.soyad)"
+                    style="padding: 10px; font-size: 1rem; margin-bottom: 10px; width: 80%;">
+                <input type="password" id="password-input" placeholder="Access Code (123)"
+                    style="padding: 10px; font-size: 1rem; margin-bottom: 20px; width: 80%;">
+                <br>
+                <button id="login-btn" class="start-btn">Enter Lab 🧪</button>
+                <p id="login-error" style="color: #ff6b6b; margin-top: 10px; display: none;">Giriş Başarısız. (Access
+                    Denied)<br>Format: <b>ad.soyad</b> (küçük harf)<br>Unuttuysan tekrar <b>Sign Up</b> yapabilirsin.
+                </p>
+                <p style="margin-top: 15px; font-size: 0.9rem;">New Scientist? <a href="#" onclick="toggleSignUp()"
+                        style="color: #4ade80;">Sign Up Here</a></p>
+            </div>
+
+            <!-- SIGNUP SECTION -->
+            <div id="signup-section" style="display: none;">
+                <h1>📝 New Scientist Registration</h1>
+                <p>Welcome to the team! Identify yourself.</p>
+                <input type="text" id="signup-name" placeholder="First Name (Ad)"
+                    style="padding: 10px; font-size: 1rem; margin-bottom: 10px; width: 80%;">
+                <input type="text" id="signup-surname" placeholder="Last Name (Soyad)"
+                    style="padding: 10px; font-size: 1rem; margin-bottom: 10px; width: 80%;">
+
+                <select id="signup-school"
+                    style="padding: 10px; font-size: 1rem; margin-bottom: 20px; width: 80%; background: #334155; color: white; border: 1px solid #4ade80;">
+                    <option value="" disabled selected>Select Your School 🏫</option>
+                    <option value="Apex">TMSA Apex</option>
+                    <option value="Cary">TMSA Cary</option>
+                    <option value="Concord">TMSA Concord</option>
+                    <option value="Charlotte">TMSA Charlotte</option>
+                    <option value="CO">TMSA CO</option>
+                </select>
+                <br>
+                <button onclick="handleSignUp()" class="start-btn" style="background: #4ade80;">Register & Enter
+                    🚀</button>
+                <p style="margin-top: 15px; font-size: 0.9rem;">Back to <a href="#" onclick="toggleSignUp()"
+                        style="color: #6366f1;">Log In</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Overlay (Hidden by default, shown after login) -->
+    <div id="start-overlay" class="overlay" style="display: none;">
+        <div class="overlay-content">
+            <h1 id="welcome-header">Ready, Scientist?</h1>
+            <p>Click below to activate your AI Lab Assistant.</p>
+            <button id="start-btn" class="start-btn" onclick="if(window.startApp) window.startApp()">Start Conversation
+                🎤</button>
+            <p style="margin-top:1rem; opacity:0.7;">Click to enable voice interaction</p>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <h1>TMSA Curie</h1>
@@ -48,16 +106,9 @@
         </div>
     </div>
 
-    <div id="start-overlay"
-        style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.95); z-index:1000; display:flex; justify-content:center; align-items:center; flex-direction:column; text-align:center;">
-        <h1 style="font-size:3rem; margin-bottom:1rem;">Hey Scientists! <br> Welcome to TMSA Curie</h1>
-        <button id="start-btn"
-            style="padding:1.5rem 3rem; font-size:1.5rem; background:#6366f1; color:white; border:none; border-radius:100px; cursor:pointer;">Start
-            Conversation 🎤</button>
-        <p style="margin-top:1rem; opacity:0.7;">Click to enable voice interaction</p>
-    </div>
-
     <script src="secrets.js"></script>
+    <script src="roster.js"></script> <!-- Added roster.js -->
+    <script src="loader.js"></script>
     <script src="app_v5.js"></script>
 </body>
 
