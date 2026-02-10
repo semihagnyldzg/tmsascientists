@@ -928,8 +928,13 @@ const initApp = () => {
             if (startOverlay) startOverlay.style.display = 'flex';
             if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${displayName}?`;
 
-            // Speak welcome
-            const welcomeMsg = `Welcome Scientist ${displayName}. Let's discover some science!`;
+            // Set detailed Intro Message for StartApp (EOG Practice Instructions)
+            if (pedagogyData) {
+                pedagogyData.intro_message = `Welcome Scientist ${displayName}! This platform is designed to help you practice for your EOG Science exams. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
+            }
+
+            // Speak short welcome immediately
+            const welcomeMsg = `Welcome Scientist ${displayName}. Let's get ready!`;
             speak(welcomeMsg);
 
         } else {
