@@ -985,7 +985,13 @@ const initApp = () => {
 
         if (pass === "123" || validUser) {
             // Success!
-            const displayName = validUser ? validUser.name : (user || "Scientist");
+            let displayName = validUser ? validUser.name : (user || "Scientist");
+
+            // Format displayName if it looks like a username (e.g., semiha.yildiz -> Semiha Yildiz)
+            if (!validUser && displayName.includes('.')) {
+                displayName = displayName.split('.').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+            }
+
             state.currentUser = { name: displayName, username: user || "guest" };
 
             if (loginOverlay) loginOverlay.style.display = 'none';
