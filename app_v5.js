@@ -1071,6 +1071,7 @@ const initApp = () => {
         logoutBtn.textContent = 'Logout';
         logoutBtn.onclick = () => {
             if (confirm("Are you sure you want to log out?")) {
+                window.speechSynthesis.cancel(); // Stop speaking immediately
                 window.location.reload();
             }
         };
