@@ -1,0 +1,11 @@
+{
+  "name": "tmsa-scientists",
+  "version": "1.0.0",
+  "description": "AI Science Tutor",
+  "scripts": {
+    "build": "echo 'No build step required'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
