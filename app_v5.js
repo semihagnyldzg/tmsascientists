@@ -900,6 +900,7 @@ const initApp = () => {
     const robotEl = document.querySelector('.avatar-img');
 
     // Login Elements
+    // Login Logic
     const loginOverlay = document.getElementById('login-overlay');
     const usernameInput = document.getElementById('username-input');
     const passwordInput = document.getElementById('password-input');
@@ -910,28 +911,40 @@ const initApp = () => {
     const startOverlay = document.getElementById('start-overlay');
     const welcomeHeader = document.getElementById('welcome-header');
 
-    // Login Logic
-    function checkLogin() {
-        if (!usernameInput) return; // safety
-        const user = usernameInput.value.trim().toLowerCase();
-        const pass = passwordInput.value.trim();
-        const student = window.studentRoster?.find(s => s.username.toLowerCase() === user && s.password === pass);
+    window.checkLogin = function () {
+        // Simple Bypass for "123"
+        const pass = passwordInput ? passwordInput.value.trim() : "";
+        const user = usernameInput ? usernameInput.value.trim() : "Scientist";
 
-        if (student) {
-            state.currentUser = student;
+        // Check password (123) OR if user exists in roster
+        let validUser = window.studentRoster?.find(s => s.username.toLowerCase() === user.toLowerCase() && s.password === pass);
+
+        if (pass === "123" || validUser) {
+            // Success!
+            const displayName = validUser ? validUser.name : (user || "Scientist");
+            state.currentUser = { name: displayName, username: user || "guest" };
+
             if (loginOverlay) loginOverlay.style.display = 'none';
             if (startOverlay) startOverlay.style.display = 'flex';
-            if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${student.name}?`;
-            pedagogyData.intro_message = `Welcome Scientist ${student.name} to TMSA Curie. Please select your grade.`;
+            if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${displayName}?`;
+
+            // Speak welcome
+            const welcomeMsg = `Welcome Scientist ${displayName}. Let's discover some science!`;
+            speak(welcomeMsg);
+
         } else {
-            if (loginError) loginError.style.display = 'block';
+            // Fail
+            if (loginError) {
+                loginError.style.display = 'block';
+                loginError.textContent = "Incorrect Access Code. Try '123'.";
+            }
             if (passwordInput) passwordInput.value = '';
         }
-    }
+    };
 
-    if (loginBtn) loginBtn.onclick = checkLogin;
+    if (loginBtn) loginBtn.onclick = window.checkLogin;
     if (passwordInput) passwordInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') checkLogin();
+        if (e.key === 'Enter') window.checkLogin();
     });
 
 
