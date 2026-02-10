@@ -106,7 +106,8 @@ async function speak(text, callback) {
         .replace(/(\d+)\s?F\b/g, "$1 degrees Fahrenheit")
         .replace(/(\d+)\s?C\b/g, "$1 degrees Celsius")
         .replace(/\bNC\b/g, "North Carolina")
-        .replace(/\bvs\./g, "versus");
+        .replace(/\bvs\./g, "versus")
+        .replace(/Awesome/g, "Great"); // Fix "Awesome" sounding like "Some"
 
     console.log("Speaking:", speechText);
 
