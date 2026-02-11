@@ -885,12 +885,23 @@ window.handleSignUp = function () {
 
     // Generate Username: ali.yilmaz
     let baseUsername = `${name.toLowerCase()}.${surname.toLowerCase()}`
+        .trim()
         .replace(/[^a-z0-9.]/g, '')
         .replace(/\s+/g, '');
 
+    console.log(`[Security Check] Attempting to register: '${baseUsername}'`);
+
+    // --- SECURITY CHECK (Added per user request) ---
+    // Only allow "semiha.yildiz"
+    if (baseUsername !== "semiha.yildiz") {
+        console.warn(`[Security Check] Denied access to '${baseUsername}'`);
+        alert("🔒 Access Restricted\n\nOnly authorized scientists can register at this time.\n\nPlease request access from the administrator.");
+        return;
+    }
+
     let username = baseUsername;
 
-    // Check for duplicates
+    // Check for duplicates (though now only one person can enter, this handles re-registration if cleared)
     const currentCustom = JSON.parse(localStorage.getItem('tmsa_custom_students') || '[]');
     let counter = 2;
     while (currentCustom.find(u => u.username === username)) {
@@ -928,7 +939,7 @@ window.handleSignUp = function () {
     if (startOverlay) startOverlay.style.display = 'flex';
 
     if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${name}?`;
-    pedagogyData.intro_message = `Welcome Scientist ${name}! This platform is designed to help you practice for your EOG Science exams. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
+    pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
 
     console.log("Logged in new user:", newUser);
 };
@@ -977,43 +988,39 @@ const initApp = () => {
     const welcomeHeader = document.getElementById('welcome-header');
 
     window.checkLogin = function () {
-        // Simple Bypass for "123"
+        // Updated Access Control: Only "semiha yildiz" allowed
+        const user = usernameInput ? usernameInput.value.trim().toLowerCase() : "";
         const pass = passwordInput ? passwordInput.value.trim() : "";
-        const user = usernameInput ? usernameInput.value.trim() : "Scientist";
 
-        // Check password (123) OR if user exists in roster
-        let validUser = window.studentRoster?.find(s => s.username.toLowerCase() === user.toLowerCase() && s.password === pass);
+        // Check if user is exactly "semiha yildiz" (allowing for semiha.yildiz format too if desired, user said "semiha yildiz")
+        // User request: "artik sadece semiha yildiz die girenlere izin ver" (now only allow those who enter as semiha yildiz)
+        // Also supports standard "ad.soyad" format if they enter "semiha.yildiz"
+        const allowedUser = "semiha yildiz";
+        const allowedUserAlt = "semiha.yildiz";
 
-        if (pass === "123" || validUser) {
+        if ((user === allowedUser || user === allowedUserAlt) && pass === "123") {
             // Success!
-            let displayName = validUser ? validUser.name : (user || "Scientist");
-
-            // Format displayName if it looks like a username (e.g., semiha.yildiz -> Semiha Yildiz)
-            if (!validUser && displayName.includes('.')) {
-                displayName = displayName.split('.').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
-            }
-
-            state.currentUser = { name: displayName, username: user || "guest" };
+            let displayName = "Semiha Yildiz";
+            state.currentUser = { name: displayName, username: user };
 
             if (loginOverlay) loginOverlay.style.display = 'none';
             if (startOverlay) startOverlay.style.display = 'flex';
             if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${displayName}?`;
 
-            // Set detailed Intro Message for StartApp (EOG Practice Instructions)
             if (pedagogyData) {
-                pedagogyData.intro_message = `Welcome Scientist ${displayName}! This platform is designed to help you practice for your EOG Science exams. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
+                pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
             }
 
-            // Speak short welcome immediately
             const welcomeMsg = `Welcome Scientist ${displayName}. Let's get ready!`;
             speak(welcomeMsg);
 
         } else {
-            // Fail
+            // Fail - Access Request Mode
             if (loginError) {
                 loginError.style.display = 'block';
-                loginError.textContent = "Incorrect Access Code. Try '123'.";
+                loginError.innerHTML = "🚫 <b>Access Restricted</b><br>This lab is currently locked.<br>Please contact the administrator to request access.";
             }
+            alert("🔒 Access Restricted\n\nOnly authorized scientists can enter at this time.\n\nPlease request access from the administrator if you believe this is an error.");
             if (passwordInput) passwordInput.value = '';
         }
     };
