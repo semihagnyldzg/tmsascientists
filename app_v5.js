@@ -15,6 +15,16 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
     return false;
 };
 
+// STOP SPEECH ON LOAD (Fix for refresh issue)
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+}
+window.onbeforeunload = function () {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+};
+
 const debugBanner = document.createElement('div');
 debugBanner.style.position = 'fixed';
 debugBanner.style.top = '0';
