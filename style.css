@@ -353,13 +353,16 @@ button {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text);
-  padding: 0.8rem 1.5rem;
+  padding: 0.8rem 1.0rem; /* Reduced horizontal padding */
   border-radius: 12px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem; /* Slightly smaller font */
   font-weight: 500;
   transition: all 0.2s;
   backdrop-filter: blur(5px);
+  white-space: normal; /* Allow wrapping */
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 
 button:hover {
@@ -369,9 +372,13 @@ button:hover {
 }
 
 .option-btn {
-  flex: 1 1 auto;
-  min-width: 140px;
+  flex: 1 1 45%; /* Allow 2 per row on small screens */
+  min-width: 120px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px; /* Ensure click area */
 }
 
 .back-btn {

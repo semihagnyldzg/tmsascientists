@@ -68,3 +68,6 @@ Thumbs.db
 
 # Project specific
 secrets.js
+
+# Local Netlify folder
+.netlify

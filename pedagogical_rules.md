@@ -65,6 +65,16 @@ Prepare 5th & 8th Grade students for **Science EOG (End-of-Grade) Exams** throug
 ### Skill 3: Evidence-Based Reasoning
 *   Every claim must be backed by a "Because...".
 
+*   Every claim must be backed by a "Because...".
+
+### Skill 4: Science IS Literacy (District Priority)
+*   **Core Philosophy**: "Science = Reading, Writing, Arguing with Evidence."
+*   **The Problem**: If science is only "hands-on", literacy gaps remain invisible.
+*   **The Rule**:
+    *   Treat every question as a **Reading Comprehension** task first.
+    *   **Bot Prompt**: "Read the text again. The answer is hiding in the sentences. Find the evidence."
+    *   **Success Predictor**: Literacy skills predict Science success. Emphasize this link.
+
 ## 📝 EOG Question Design Principles (Content Generation Rules)
 *   **Context-First**: NEVER ask simple definition questions (e.g., "What is a force?"). ALWAYS provide a scenario, table, or graph first.
     *   *Bad*: "What is density?"

@@ -232,6 +232,39 @@ Options: *Left side (Alkali), Right side (Noble), Bottom
 Explanation: The most reactive metals live in Group 1. Where is Group 1?
 Analogy: The 'Wild Ones' live on the far left edge of the map.
 
+## Calm Lake Investigation (Code: ESS.8.3.CL)
+Description: Data analysis, Eutrophication, Dissolved Oxygen vs Algae.
+
+Question: Xavier notices the lake is darker. A news article blames "nutrient pollution" (P and N). What is the likely source of these nutrients?
+Topic: Nutrient Pollution
+Options: *Fertilizer runoff from nearby farms, Acid rain, Thermal pollution from factories, Volcanic activity
+Explanation: Nitrogen (N) and Phosphorus (P) are the main ingredients in plant food (fertilizer). Rain washes them into the water.
+Analogy: Think of giving a plant too much Miracle-Gro. It grows crazy fast! The same happens to algae.
+
+Question: Figure 2 shows Algae Chlorophyll increasing from Day 1 to Day 30. Figure 3 shows Dissolved Oxygen dropping from Day 10 to Day 30. What does the change from Day 9 to Day 10 indicate?
+Topic: Algae Bloom & Oxygen
+Options: *The algae population increased giving them less light, The algae stopped photosynthesizing, The fish ate all the algae
+Explanation: Wait, check the data! Algae goes UP. Oxygen stays high for a bit, then crashes. Why? When different organisms die, bacteria eat them and use up the oxygen.
+Analogy: It's like a crowded party in a small room. At first it's fun, but eventually, everyone uses up the air.
+
+Question: Bacteria feed on dying algae. As bacteria grow, they consume Oxygen. How does this explain the "Dead Zone" in the lake?
+Topic: Bacterial Decomposition
+Options: *Bacteria use up the oxygen fish need, Bacteria poison the fish directly, Bacteria make the water too hot
+Explanation: The bacteria are the cleanup crew. They work hard to eat the dead algae, but they breathe heavy (use O2) while working!
+Analogy: Imagine a huge cleanup crew coming into a house. They clean everything up, but they eat all the food in the fridge while doing it. Now the family (fish) has nothing to eat (breathe).
+
+Question: Calm Lake is unsafe for fish if Dissolved Oxygen is below 6 mg/L. Looking at Figure 3 (Day 17 = 6.0, Day 22 = 3.0), when did it become unsafe?
+Topic: Data Interpretation
+Options: *After Day 17, Before Day 1, On Day 9, It never became unsafe
+Explanation: Look at the line graph. When does it cross the "6" line and go under it?
+Analogy: It's like a limbo bar. You are safe as long as the bar is high (above 6). Once it drops low (below 6), you can't walk under it anymore.
+
+Question: How do algae usually contribute to the matter cycle in a healthy lake (before the pollution)?
+Topic: Photosynthesis
+Options: *Produce Oxygen (O2) and food, Produce Carbon Dioxide (CO2), Consume Oxygen only
+Explanation: Algae are plants! What do plants do? They take sunlight and make food + oxygen.
+Analogy: Plants are the chefs of the ecosystem. They cook up the food (sugar) and fresh air (oxygen).
+
 ## Forces & Motion (Code: 5.P.1)
 Description: Gravity, Friction, Mass, and Motion Graphs
 
@@ -314,5 +347,178 @@ Question: Why do zebras instinctively travel in large herds?
 Options: *To confuse predators and increase survival chances, Because older zebras taught them to do so in school, To stay warm in the cold arctic environment, Because they are following a map
 Explanation: Did a mommy zebra teach them this, or do they just "know" to do it for safety?
 Analogy: It's pre-programmed software in their brains to keep them safe.
+
+# Science & ELA Collaboration (ID: SciELA)
+Intro: Welcome to the Science & ELA Collaboration Lab! Here we use our reading superpowers to unlock science secrets. Select your grade level to begin.
+
+
+
+## Scientific Practices (Code: K.P.1)
+Description: observe, describe, predict, compare, investigate
+
+Question: What do scientists do when they look closely at something to learn about it?
+Topic: Scientific Practices
+Options: *Observe, Sleep, Run, Hide
+Explanation: Observation is using your eyes and other senses to gather information.
+Analogy: Like a detective looking for clues!
+
+Question: When you tell someone exactly what something looks like, what are you doing?
+Topic: Scientific Practices
+Options: *Describe, Ignore, Eat, Fly
+Explanation: Describing is painting a picture with words.
+Analogy: Telling your friend about a movie they haven't seen.
+
+Question: What is it called when you use what you know to guess what will happen next?
+Topic: Scientific Practices
+Options: *Predict, Remember, Dance, Swim
+Explanation: A prediction is a smart guess about the future.
+Analogy: Guessing who will win the game before it ends.
+
+Question: When we look at two things to see how they are the same or different, we...
+Topic: Scientific Practices
+Options: *Compare, Believe, Forget, Sleep
+Explanation: Comparing helps us organize things into groups.
+Analogy: Apples vs Oranges.
+
+Question: What do we do when we plan a test to answer a question?
+Topic: Scientific Practices
+Options: *Investigate, Imagine, Dream, Play
+Explanation: Investigation is the "doing" part of science.
+Analogy: Searching for buried treasure.
+
+## Weather & Environment (Code: K.E.1)
+Description: weather, sun, cloud, rain, wind
+
+Question: What word describes what the air is like outside right now (hot, cold, rainy)?
+Topic: Weather & Environment
+Options: *Weather, Time, Space, Food
+Explanation: Weather changes every day!
+Analogy: It's the mood of the sky.
+
+Question: What is the big yellow star that gives us light and heat?
+Topic: Weather & Environment
+Options: *Sun, Moon, Pizza, Ball
+Explanation: The Sun wakes up the world every morning.
+Analogy: The Earth's giant heat lamp.
+
+Question: What are the white fluffy things floating in the sky?
+Topic: Weather & Environment
+Options: *Clouds, Cotton Candy, Sheep, Pillows
+Explanation: Clouds are made of tiny water droplets.
+Analogy: Floating water puffs.
+
+Question: What is water that falls from the sky?
+Topic: Weather & Environment
+Options: *Rain, Juice, Milk, Tears
+Explanation: Rain helps plants grow.
+Analogy: A shower for the trees.
+
+Question: What is moving air that you can feel but not see?
+Topic: Weather & Environment
+Options: *Wind, Ghost, Magic, Sound
+Explanation: Wind blows the leaves and flies kites.
+Analogy: The sky blowing out a birthday candle.
+
+## Living & Nonliving (Code: K.L.1)
+Description: living, nonliving, plant, animal, habitat
+
+Question: A dog grows, eats, and breathes. Is it...
+Topic: Living & Nonliving
+Options: *Living, Nonliving, A Toy, A Rock
+Explanation: Living things need food, water, and air.
+Analogy: You are living too!
+
+Question: A rock does not eat or grow. Is it...
+Topic: Living & Nonliving
+Options: *Nonliving, Living, Sleeping, Hungry
+Explanation: Nonliving things don't need anything to survive.
+Analogy: Like your toy car.
+
+Question: What is a living thing that grows in the ground and needs sun?
+Topic: Living & Nonliving
+Options: *Plant, Rock, Car, House
+Explanation: Plants are green living things.
+Analogy: Nature's solar panels.
+
+Question: What is a living thing that moves around and eats food?
+Topic: Living & Nonliving
+Options: *Animal, Tree, Flower, Cloud
+Explanation: Animals (and humans) are consumers.
+Analogy: Your pet!
+
+Question: What do we call the home where an animal lives?
+Topic: Living & Nonliving
+Options: *Habitat, School, Store, Gym
+Explanation: A habitat has everything the animal needs.
+Analogy: Like your bedroom is your habitat.
+
+## Five Senses (Code: K.L.2)
+Description: see, hear, smell, touch, taste
+
+Question: We use our eyes to...
+Topic: Five Senses
+Options: *See, Hear, Smell, Taste
+Explanation: Eyes let us look at the world.
+Analogy: Your body's cameras.
+
+Question: We use our ears to...
+Topic: Five Senses
+Options: *Hear, See, Touch, Run
+Explanation: Ears let us listen to music and voices.
+Analogy: Your body's microphones.
+
+Question: We use our nose to...
+Topic: Five Senses
+Options: *Smell, See, Jump, Read
+Explanation: Noses help us smell flowers (or stinky socks!).
+Analogy: Your body's sensor.
+
+Question: We use our hands and skin to...
+Topic: Five Senses
+Options: *Touch, See, Hear, Smell
+Explanation: Touch tells us if something is hot, cold, soft, or prickly.
+Analogy: Your body's feelers.
+
+Question: We use our tongue to...
+Topic: Five Senses
+Options: *Taste, See, Hear, Walk
+Explanation: Taste tells us if food is yummy or yucky.
+Analogy: Your body's food tester.
+
+## 1st Grade (Code: )
+Description: Asking Questions & Retelling. We ask "Why?" and tell the story of what happened.
+
+Question: The sun warms the lizard. What question can we ask about this?
+Topic: Inquiry
+Options: *Why does the lizard sit in the sun?, What makes the sun blue?, Do lizards eat pizza?
+Explanation: Scientists ask questions that help them understand how things work.
+Analogy: Just like you ask "Why?" when you want to know how a toy works.
+
+## 2nd Grade (Code: )
+Description: Cause & Effect. When one thing happens, it makes another thing happen.
+
+Question: It rained all night. Now the playground is muddy. What was the cause?
+Topic: Cause and Effect
+Options: *The rain, The mud, The playground
+Explanation: The "Cause" is the thing that started it. The "Effect" is what happened because of it.
+Analogy: You pushed the domino (Cause), and it fell over (Effect).
+
+## 3rd Grade (Code: )
+Description: Main Idea & Details. Finding the most important science fact in a text.
+
+Question: "Plants need sunlight, water, and soil to grow." What is the main idea?
+Topic: Main Idea
+Options: *What plants need to live, How to water a garden, Why dirt is brown
+Explanation: The main idea is the "Big Picture". It's what the whole sentence is about.
+Analogy: The main idea the "Title" of the movie. The details are the scenes.
+
+## 4th Grade (Code: )
+Description: Evidence & Inference. Using clues to find answers that aren't written down.
+
+Question: The animal has thick fur and white paws. It lives in the snow. What animal might it be?
+Topic: Inference
+Options: *Polar Bear, Tropical Frog, Desert Camel
+Explanation: Connect the clues! Thick fur + Snow = Cold weather animal.
+Analogy: It's like being a detective. The footprints tell you who walked by, even if you didn't see them.
 
 

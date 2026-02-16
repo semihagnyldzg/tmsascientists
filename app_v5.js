@@ -100,7 +100,8 @@ async function speak(text, callback) {
     const synth = window.speechSynthesis;
 
     // Pre-process text for better pronunciation
-    const speechText = text
+    // Pre-process text for better pronunciation and natural flow
+    let speechText = text
         .replace(/[\u00B0\u00BA]F/g, " degrees Fahrenheit")
         .replace(/[\u00B0\u00BA]C/g, " degrees Celsius")
         .replace(/(\d+)\s?F\b/g, "$1 degrees Fahrenheit")
@@ -108,6 +109,17 @@ async function speak(text, callback) {
         .replace(/\bNC\b/g, "North Carolina")
         .replace(/\bvs\./g, "versus")
         .replace(/Awesome/g, "Great"); // Fix "Awesome" sounding like "Some"
+
+    // Intelligently remove "Scientist" if it was just said recently (simple heuristic)
+    // or if it appears at the end of a sentence too frequently.
+    if (state.lastSpokenText && state.lastSpokenText.includes("Scientist") && speechText.includes("Scientist")) {
+        // If we just said it, maybe remove it this time to be less repetitive
+        // Only remove if it's a standalone address like ", Scientist" or "Scientist, "
+        speechText = speechText.replace(/,\s*Scientist\b/gi, "").replace(/\bScientist,\s*/gi, "");
+    }
+
+    // Update last spoken text for next time
+    state.lastSpokenText = speechText;
 
     console.log("Speaking:", speechText);
 
@@ -208,35 +220,60 @@ window.startApp = function () {
     const chatArea = document.querySelector('.chat-area');
     if (chatArea) chatArea.classList.add('visible');
 
+    // Make Avatar Clickable to Stop Speech
+    const avatar = document.querySelector('.avatar-img');
+    if (avatar) {
+        avatar.style.cursor = 'pointer';
+        avatar.title = "Click to stop speaking";
+        avatar.onclick = () => {
+            window.speechSynthesis.cancel();
+            if (state.currentAudio) {
+                state.currentAudio.pause();
+                state.currentAudio = null;
+            }
+            state.isSpeaking = false;
+            if (avatar) avatar.classList.remove('speaking');
+        };
+    }
+
     addMessage(pedagogyData.intro_message, 'sestin');
     speak(pedagogyData.intro_message, () => {
         renderGrades();
     });
 
-    // --- SESSION TIMER LOGIC ---
+    // --- SESSION TIMER LOGIC (ROBUST) ---
     const SESSION_DURATION = 30 * 60 * 1000; // 30 mins
     const WARNING_TIME = 25 * 60 * 1000;     // 25 mins
+    const startTime = Date.now();
+    let warningShown = false;
 
-    // Warning
-    setTimeout(() => {
-        const studentName = state.currentUser ? state.currentUser.name.split(' ')[0] : 'Scientist';
-        const warningMsg = `Attention Scientist ${studentName}. We have 5 minutes remaining in today's session. Let's make them count!`;
-        addMessage(`⏰ ${warningMsg}`, 'sestin');
-        speak(warningMsg);
-    }, WARNING_TIME);
+    // Check every second
+    state.sessionInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
 
-    // End Session (Logout)
-    setTimeout(() => {
-        const studentName = state.currentUser ? state.currentUser.name.split(' ')[0] : 'Scientist';
-        const endMsg = `Great work today, Scientist ${studentName}! Session complete. Logging out now...`;
-        speak(endMsg);
-        addMessage(`🛑 ${endMsg}`, 'sestin');
+        // Warning
+        if (elapsed >= WARNING_TIME && !warningShown) {
+            warningShown = true;
+            const studentName = state.currentUser ? state.currentUser.name.split(' ')[0] : 'Scientist';
+            const warningMsg = `Attention Scientist ${studentName}. We have 5 minutes remaining in today's session. Let's make them count!`;
+            addMessage(`⏰ ${warningMsg}`, 'sestin');
+            speak(warningMsg);
+        }
 
-        // Wait for speech to start then reload
-        setTimeout(() => {
-            window.location.reload();
-        }, 5000);
-    }, SESSION_DURATION);
+        // End Session
+        if (elapsed >= SESSION_DURATION) {
+            clearInterval(state.sessionInterval);
+            const studentName = state.currentUser ? state.currentUser.name.split(' ')[0] : 'Scientist';
+            const endMsg = `Great work today, Scientist ${studentName}! Session complete. Logging out now...`;
+            speak(endMsg);
+            addMessage(`🛑 ${endMsg}`, 'sestin');
+
+            // Wait for speech to start then reload
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
+        }
+    }, 1000);
 
     // --- DAILY ACTIVITY TRACKING ---
     // Update every 1 minute (60,000 ms)
@@ -256,6 +293,27 @@ function renderGrades() {
     const ctrl = document.querySelector('.controls');
     if (!ctrl) return;
     ctrl.innerHTML = '';
+
+    // Purpose Statement
+    const purposeBox = document.createElement('div');
+    purposeBox.style.background = 'linear-gradient(135deg, #1e293b, #334155)';
+    purposeBox.style.padding = '1.5rem';
+    purposeBox.style.borderRadius = '12px';
+    purposeBox.style.marginBottom = '2rem';
+    purposeBox.style.borderLeft = '5px solid #4ade80';
+    purposeBox.style.color = '#e2e8f0';
+    purposeBox.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+    purposeBox.innerHTML = `
+        <h3 style="margin-top:0; color:#4ade80; display:flex; align-items:center; gap:10px;">
+            <span>🧬</span> Science & Literacy Lab
+        </h3>
+        <p style="margin-bottom:0; line-height:1.6;">
+            This platform is designed to help you practice for your <strong>EOG Science</strong> exams 
+            while strengthening the connection between <strong>Science and Literacy skills</strong>.
+        </p>
+    `;
+    ctrl.appendChild(purposeBox);
+
     const grid = document.createElement('div');
     grid.className = 'options-grid';
 
@@ -271,7 +329,10 @@ function renderGrades() {
 
 function selectGrade(grade) {
     state.currentGrade = grade;
-    addMessage(grade.intro_message, 'sestin');
+    // Don't auto-add message to chat to avoid clutter/overlap if that's the issue
+    // addMessage(grade.intro_message, 'sestin'); 
+    // Instead, just speak it.
+    speak(grade.intro_message);
     renderStrands(grade.intro_message);
 }
 
@@ -280,10 +341,55 @@ function renderStrands(overrideSpeech = null) {
     const controlsEl = document.querySelector('.controls');
     controlsEl.innerHTML = '';
 
+    // Create a wrapper for the top controls to ensure spacing
+    const topBar = document.createElement('div');
+    topBar.style.display = 'flex';
+    topBar.style.justifyContent = 'space-between';
+    topBar.style.alignItems = 'center';
+    topBar.style.marginBottom = '1.5rem';
+    topBar.style.width = '100%';
+
+    // --- Back Button ---
+    const backBtn = document.createElement('button');
+    backBtn.className = 'back-btn';
+    backBtn.innerHTML = '⬅ Grades'; // Shorter text
+    backBtn.onclick = () => {
+        window.speechSynthesis.cancel();
+        renderGrades();
+    };
+    topBar.appendChild(backBtn);
+
+    // --- Speech Replay Button (Requested) ---
+    const speechBtn = document.createElement('button');
+    speechBtn.className = 'option-btn'; // Recycle style
+    speechBtn.style.padding = '0.5rem 1rem';
+    speechBtn.style.fontSize = '1rem';
+    speechBtn.style.background = '#3b82f6'; // Blue
+    speechBtn.innerHTML = '🔊 Listen';
+    speechBtn.onclick = () => {
+        if (overrideSpeech) speak(overrideSpeech);
+    };
+    topBar.appendChild(speechBtn);
+    // -------------------------
+
     const container = document.createElement('div');
     container.className = 'strands-container';
-    // Removed direct style manipulation to let CSS handle it via .controls
     container.style.width = '100%';
+
+    // Add the top bar to the container
+    container.appendChild(topBar);
+
+    // Intro Text Display (To fix overlap, putting it IN the flow, not as a chat bubble)
+    const introText = document.createElement('div');
+    introText.style.background = '#1e293b';
+    introText.style.padding = '1rem';
+    introText.style.borderRadius = '10px';
+    introText.style.marginBottom = '2rem';
+    introText.style.color = '#e2e8f0';
+    introText.style.fontStyle = 'italic';
+    introText.style.borderLeft = '4px solid #3b82f6';
+    introText.innerHTML = `"${overrideSpeech || state.currentGrade.intro_message}"`;
+    container.appendChild(introText);
 
     const randomBtn = document.createElement('button');
     randomBtn.className = 'strand-card';
@@ -293,10 +399,9 @@ function renderStrands(overrideSpeech = null) {
     randomBtn.style.width = '100%';
     randomBtn.style.padding = '1.5rem';
     randomBtn.style.textAlign = 'center';
-    randomBtn.style.marginBottom = '3rem'; // Added Strong Margin
-    randomBtn.innerHTML = `<span style="font-size:1.5rem; color: white; font-weight: 800;">🎲 Quick Random Question</span>`;
+    randomBtn.style.marginBottom = '2rem';
+    randomBtn.innerHTML = `<span style="font-size:1.5rem; color: white; font-weight: 800;">📚 Vocabulary</span>`;
     randomBtn.style.cursor = 'pointer';
-    randomBtn.style.marginBottom = '2.5rem'; // Force margin to prevent overlap
 
     randomBtn.onclick = () => startRandomQuestion();
     container.appendChild(randomBtn);
@@ -362,7 +467,7 @@ function renderStrands(overrideSpeech = null) {
     if (overrideSpeech) {
         speak(overrideSpeech);
     } else {
-        speak("Here are the topics. Pick one and let's get started, Scientist!");
+        speak("Scientist, here are the topics. Pick one and let's get started!");
     }
 }
 
@@ -616,7 +721,7 @@ function presentOptions() {
     const q = state.currentQuestion;
     addMessage("Hypothesis Mode: Which one feels right?", 'sestin');
     renderOptions(q.options);
-    speak("Here are the choices. Which one calls out to you, Scientist?");
+    speak("Scientist, here are the choices. Which one calls out to you?");
 }
 
 function renderOptions(options) {
@@ -636,6 +741,48 @@ function renderOptions(options) {
 
 function selectOption(optionText) {
     state.selectedOption = optionText;
+    const q = state.currentQuestion;
+    const correctVal = q.correct_answer || q.answer || "";
+
+    // Check for K-4 Science-ELA Mode
+    if (state.currentGrade && state.currentGrade.id === 'SciELA') {
+        // Immediate Validation
+        // Check if selected option contains the correct answer text (simple heuristic)
+        // or matches the stored correct answer string
+        const isCorrect = optionText.includes(correctVal) || correctVal.includes(optionText) || optionText.startsWith("*");
+
+        addMessage(`You selected: ${optionText}`, 'user');
+
+        if (isCorrect) {
+            // Correct - Immediate Praise
+            const praise = "Very good job.";
+            addMessage(praise, 'sestin');
+            speak(praise);
+            state.consecutiveCorrect++;
+
+            // Return to menu after short delay
+            setTimeout(() => {
+                renderStrands();
+            }, 3000);
+            return;
+        } else {
+            // Incorrect - Ask Why (Specific Prompt)
+            state.discussionPhase = 'reasoning';
+            const challenge = `Interesting choice. Why do you think ${optionText} is the answer?`;
+            addMessage(challenge, 'sestin');
+            speak(challenge, () => {
+                if (state.silenceTimer) clearTimeout(state.silenceTimer);
+                // No silence scaffolding needed for this specific prompt style as per request?
+                // Or keep it? keeping it for consistency but maybe longer delay
+            });
+
+            // Proceed to setup Mic for reasoning
+            setupReasoningUI();
+            return;
+        }
+    }
+
+    // Default Behavior (5th/8th Grade) - Always Reasoning First
     state.discussionPhase = 'reasoning';
     addMessage(`You selected: ${optionText}`, 'user');
     const challenge = `Interesting choice. Why do you think ${optionText} is the answer?`;
@@ -649,6 +796,10 @@ function selectOption(optionText) {
         }, 4000);
     });
 
+    setupReasoningUI();
+}
+
+function setupReasoningUI() {
     const controlsEl = document.querySelector('.controls');
     controlsEl.innerHTML = '';
     const note = document.createElement('p');
@@ -668,8 +819,10 @@ function selectOption(optionText) {
 
 function showReasoningScaffolds() {
     if (document.getElementById('scaffold-container')) return;
-    const brainstormMsgDisplay = "Let's do this. You are a Scientist. Science is about understanding what is happening in the world. So we will understand what is happening here now. But let's start small. Let's do some abstraction strategy. Take 4 or 5 seconds to think. I'll be right here waiting for you.";
-    const brainstormMsgSpeak = "Let's do this. You are a Scientist. Science is about understanding what is happening in the world. So we will understand what is happening here now. But let's start small. Let's do some abstraction strategy. Remember what that is? We focus on what is important, and for now we ignore concepts that are not very important. Take 4 or 5 seconds to think. I'll be right here waiting for you.";
+
+    // Silence Scaffolding (Rule 4.1 from Pedagogical Rules)
+    const brainstormMsgDisplay = "You are a Scientist. Let's use an abstraction strategy. Take a moment to think.";
+    const brainstormMsgSpeak = "You are a Scientist. Let's use an abstraction strategy. Focus on what is important, and ignore the rest for now. I'll be right here waiting.";
 
     addMessage(brainstormMsgDisplay, 'sestin');
 
@@ -680,7 +833,7 @@ function showReasoningScaffolds() {
             const hintMsg = `What is this question really asking us? It looks like it is asking us about ${topicHint}.`;
             speak(hintMsg);
             addMessage(`(Thinking... ${hintMsg})`, 'sestin');
-        }, 4000);
+        }, 5000); // Increased to 5s to give more thinking time
     });
 
     const container = document.createElement('div');
@@ -1008,7 +1161,7 @@ const initApp = () => {
             if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${displayName}?`;
 
             if (pedagogyData) {
-                pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
+                pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams and to strengthen the connection between science and literacy skills. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
             }
 
             const welcomeMsg = `Welcome Scientist ${displayName}. Let's get ready!`;
@@ -1022,6 +1175,77 @@ const initApp = () => {
             }
             alert("🔒 Access Restricted\n\nOnly authorized scientists can enter at this time.\n\nPlease request access from the administrator if you believe this is an error.");
             if (passwordInput) passwordInput.value = '';
+        }
+    };
+
+    window.handleInput = function (text) {
+        if (!text) return;
+        text = text.toLowerCase();
+        console.log("Handling Input:", text, "Phase:", state.currentPhase);
+
+        // Global Commands
+        if (text.includes("stop") || text.includes("cancel")) {
+            window.speechSynthesis.cancel();
+            state.isSpeaking = false;
+            return;
+        }
+
+        if (state.currentPhase === 'grade_selection') {
+            const grade = pedagogyData.grades.find(g => text.includes(g.title.toLowerCase()) || text.includes(g.id.toLowerCase()));
+            if (grade) {
+                selectGrade(grade);
+            }
+        } else if (state.currentPhase === 'topic_selection') {
+            if (text.includes("vocabulary") || text.includes("random")) {
+                startRandomQuestion();
+                return;
+            }
+            if (text.includes("back") || text.includes("grade")) {
+                renderGrades();
+                return;
+            }
+            // Check visible strands/topics
+            // Since we don't have easy access to the list check, we rely on click for specific topics mostly, 
+            // but we can try to match strand titles
+            if (state.currentGrade) {
+                const strand = state.currentGrade.strands.find(s => text.includes(s.title.toLowerCase()));
+                if (strand) {
+                    // Pick the first question of the strand or random? 
+                    // Let's pick the first for now as a default action
+                    if (strand.questions.length > 0) {
+                        selectTopic(strand.questions[0], strand);
+                    }
+                }
+            }
+        } else if (state.currentPhase === 'discussion') {
+            if (state.discussionPhase === 'comprehension') {
+                if (text.includes("option") || text.includes("choice")) {
+                    presentOptions();
+                } else if (text.includes("decompose") || text.includes("break")) {
+                    decomposeQuestion();
+                } else if (text.includes("different") || text.includes("skip") || text.includes("change")) {
+                    startRandomQuestion();
+                }
+            } else if (state.discussionPhase === 'selection') {
+                // Match options
+                if (state.currentQuestion && state.currentQuestion.options) {
+                    const matchedOpt = state.currentQuestion.options.find(opt => text.includes(opt.toLowerCase()));
+                    if (matchedOpt) {
+                        selectOption(matchedOpt);
+                    }
+                }
+            } else if (state.discussionPhase === 'reasoning') {
+                // Any input here is the reasoning
+                // We assume the user has spoken their reason
+                // We stop listening and finalize
+                if (state.isListening) {
+                    window.recognition.stop();
+                }
+                // Add a small delay to ensure the user is done
+                setTimeout(() => {
+                    finalizeAnswer();
+                }, 1000);
+            }
         }
     };
 
