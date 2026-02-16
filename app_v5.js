@@ -872,7 +872,18 @@ function showReasoningScaffolds() {
 
 function finalizeAnswer() {
     const q = state.currentQuestion;
-    const isCorrect = state.selectedOption.toLowerCase().startsWith(q.answer.toLowerCase().charAt(0));
+    const correctVal = q.correct_answer || q.answer || "";
+    const selectedVal = state.selectedOption || "";
+
+    // Safety check to prevent crash
+    if (!correctVal || !selectedVal) {
+        console.error("Missing answer or selection", { correctVal, selectedVal });
+        addMessage("Let's try another one.", 'sestin');
+        setTimeout(renderStrands, 2000);
+        return;
+    }
+
+    const isCorrect = selectedVal.toLowerCase().startsWith(correctVal.toLowerCase().charAt(0));
 
     if (isCorrect) {
         addMessage("Correct! Amazing work.", 'sestin');
@@ -885,8 +896,8 @@ function finalizeAnswer() {
             if (state.currentDifficulty === "Easy") state.currentDifficulty = "Medium";
         }
     } else {
-        addMessage(`Not quite. The correct answer was ${q.answer}.`, 'sestin');
-        speak(`Actually, the evidence points to ${q.answer}. Let's learn from this.`);
+        addMessage(`Not quite. The correct answer was ${correctVal}.`, 'sestin');
+        speak(`Actually, the evidence points to ${correctVal}. Let's learn from this.`);
         state.consecutiveCorrect = 0;
     }
 
