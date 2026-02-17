@@ -47,6 +47,9 @@ const SimManager = {
         } else if (type === 'matter') {
             MatterLab.render(container);
             this.currentLab = MatterLab;
+        } else if (type === 'genetics') {
+            GeneticsLab.render(container);
+            this.currentLab = GeneticsLab;
         } else {
             // Default to Generic
             GenericLab.render(container, topic);

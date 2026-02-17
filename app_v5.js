@@ -407,6 +407,7 @@ function renderStrands(overrideSpeech = null) {
             if (s.title.includes('Weather') || s.code.includes('ESS.5.1') || s.code.includes('E.1')) simType = 'weather';
             if (s.title.includes('Force') || s.code.includes('P.5.1')) simType = 'forces';
             if (s.title.includes('Matter') || s.code.includes('PS.5.1')) simType = 'matter';
+            if (s.title.includes('Genetics') || s.title.includes('Inherited') || s.code.includes('LS.5.3') || s.code.includes('LS.8.3')) simType = 'genetics';
 
             // Note: We show the link for EVERY strands/standard now.
             if (simType) {
