@@ -409,7 +409,195 @@ const MatterLab = {
     }
 };
 
-/* --- 4. Generic Lab (Placeholder) --- */
+
+/* --- 4. Genetics Lab (Inherited vs Acquired) --- */
+const GeneticsLab = {
+    state: {
+        tab: 'inherited',
+        // Inherited (DNA)
+        color: '#8b5cf6', // Violet default
+        horns: 0,
+        eyes: 2,
+
+        // Acquired (Environment/Learning)
+        skill: null, // 'music', 'cooking'
+        tan: false,
+        scar: false
+    },
+    container: null,
+
+    render(container) {
+        this.container = container;
+        // Reset state
+        this.state = {
+            tab: 'inherited',
+            color: '#8b5cf6',
+            horns: 0,
+            eyes: 2,
+            skill: null,
+            tan: false,
+            scar: false
+        };
+        this.renderTabs();
+    },
+
+    renderTabs() {
+        this.container.innerHTML = `
+            <div class="sim-header">
+                <h2>🧬 Genetics: Inherited vs Acquired</h2>
+                <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 0.5rem;">
+                    <button onclick="GeneticsLab.switchTab('inherited')" class="sim-tab-btn ${this.state.tab === 'inherited' ? 'active' : ''}">🧬 Inherited (DNA)</button>
+                    <button onclick="GeneticsLab.switchTab('acquired')" class="sim-tab-btn ${this.state.tab === 'acquired' ? 'active' : ''}">🏋️ Acquired (Learned)</button>
+                </div>
+            </div>
+            
+            <div style="display: flex; height: 60vh; padding: 1rem; gap: 2rem; justify-content: center;">
+                <!-- Monster Preview -->
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; border-radius: 16px; border: 2px dashed #cbd5e1;">
+                    <h3 style="color: #64748b; margin-bottom: 1rem;">Your Monster</h3>
+                    <div id="monster-preview" style="position: relative; width: 200px; height: 200px; transition: all 0.5s;">
+                        <!-- Body -->
+                        <div id="m-body" style="width: 100%; height: 100%; border-radius: 40px; background: ${this.state.tan ? '#d97706' : this.state.color}; transition: background 0.5s; position: relative; overflow: visible;">
+                            
+                            <!-- Eyes -->
+                            <div id="m-eyes" style="position: absolute; top: 30%; width: 100%; display: flex; justify-content: center; gap: 10px;">
+                                ${this.getEyesHTML()}
+                            </div>
+
+                            <!-- Mouth -->
+                            <div style="position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); width: 60px; height: 20px; background: #333; border-radius: 0 0 20px 20px;"></div>
+
+                            <!-- Horns -->
+                            ${this.getHornsHTML()}
+
+                            <!-- Scar (Acquired) -->
+                            ${this.state.scar ? '<div style="position: absolute; top: 60%; left: 20%; font-size: 2rem;">🩹</div>' : ''}
+                            
+                            <!-- Skill (Acquired) -->
+                            ${this.getSkillHTML()}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div style="flex: 1; background: white; padding: 1rem; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    ${this.state.tab === 'inherited' ? this.renderInheritedControls() : this.renderAcquiredControls()}
+                </div>
+            </div>
+        `;
+    },
+
+    switchTab(tab) {
+        this.state.tab = tab;
+        this.renderTabs();
+    },
+
+    /* --- HTML Helpers --- */
+    getEyesHTML() {
+        let eyes = '';
+        for (let i = 0; i < this.state.eyes; i++) {
+            eyes += `<div style="width: 30px; height: 30px; background: white; border-radius: 50%; border: 3px solid #333; display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 10px; height: 10px; background: black; border-radius: 50%;"></div>
+                     </div>`;
+        }
+        return eyes;
+    },
+
+    getHornsHTML() {
+        if (this.state.horns === 0) return '';
+        if (this.state.horns === 1) return '<div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 40px solid #fcd34d;"></div>'; // Unicorn
+        if (this.state.horns === 2) return `
+            <div style="position: absolute; top: -20px; left: 10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 30px solid #fcd34d; transform: rotate(-20deg);"></div>
+            <div style="position: absolute; top: -20px; right: 10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 30px solid #fcd34d; transform: rotate(20deg);"></div>
+        `;
+        return '';
+    },
+
+    getSkillHTML() {
+        if (!this.state.skill) return '';
+        if (this.state.skill === 'music') return '<div style="position: absolute; bottom: -10px; right: -20px; font-size: 3rem;">🎸</div>';
+        if (this.state.skill === 'cooking') return '<div style="position: absolute; bottom: -10px; right: -20px; font-size: 3rem;">🍳</div>';
+        if (this.state.skill === 'sports') return '<div style="position: absolute; bottom: -10px; right: -20px; font-size: 3rem;">🏀</div>';
+        return '';
+    },
+
+    /* --- Controls Renderers --- */
+    renderInheritedControls() {
+        return `
+            <h3 style="color: #3b82f6;">🧬 Inherited Traits (DNA)</h3>
+            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">These traits come from the parents and are determined before birth.</p>
+            
+            <div class="control-group">
+                <label>Fur Color (Genetics)</label>
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button onclick="GeneticsLab.setTrait('color', '#8b5cf6')" style="width: 30px; height: 30px; background: #8b5cf6; border-radius: 50%; border: 2px solid #ddd; cursor: pointer;"></button>
+                    <button onclick="GeneticsLab.setTrait('color', '#ef4444')" style="width: 30px; height: 30px; background: #ef4444; border-radius: 50%; border: 2px solid #ddd; cursor: pointer;"></button>
+                    <button onclick="GeneticsLab.setTrait('color', '#10b981')" style="width: 30px; height: 30px; background: #10b981; border-radius: 50%; border: 2px solid #ddd; cursor: pointer;"></button>
+                </div>
+            </div>
+
+            <div class="control-group" style="margin-top: 1.5rem;">
+                <label>Eye Count</label>
+                <input type="range" min="1" max="3" value="${this.state.eyes}" oninput="GeneticsLab.setTrait('eyes', this.value)" style="width: 100%;">
+                <div style="text-align: right; color: #666;">${this.state.eyes} Eyes</div>
+            </div>
+
+            <div class="control-group" style="margin-top: 1.5rem;">
+                <label>Horns</label>
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button class="sim-btn" onclick="GeneticsLab.setTrait('horns', 0)">None</button>
+                    <button class="sim-btn" onclick="GeneticsLab.setTrait('horns', 1)">Unicorn</button>
+                    <button class="sim-btn" onclick="GeneticsLab.setTrait('horns', 2)">Devil</button>
+                </div>
+            </div>
+        `;
+    },
+
+    renderAcquiredControls() {
+        return `
+            <h3 style="color: #d97706;">🏋️ Acquired Traits (Environment)</h3>
+            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">These traits are learned or happen during the monster's life.</p>
+            
+            <div class="control-group">
+                <label>Learn a Skill</label>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
+                    <button class="sim-btn" onclick="GeneticsLab.setTrait('skill', 'music')">🎸 Guitar Lessons</button>
+                    <button class="sim-btn" onclick="GeneticsLab.setTrait('skill', 'cooking')">🍳 Cooking Class</button>
+                    <button class="sim-btn" onclick="GeneticsLab.setTrait('skill', 'sports')">🏀 Basketball Camp</button>
+                    <button class="sim-btn" onclick="GeneticsLab.setTrait('skill', null)">❌ None</button>
+                </div>
+            </div>
+
+            <div class="control-group" style="margin-top: 1.5rem;">
+                <label>Environment Events</label>
+                <div style="margin-top: 5px;">
+                    <button class="sim-btn" onclick="GeneticsLab.toggleTrait('tan')" style="width: 100%; margin-bottom: 0.5rem; text-align: left;">
+                        ☀️ Go to the Beach (Get Tan) ${this.state.tan ? '✅' : ''}
+                    </button>
+                    <button class="sim-btn" onclick="GeneticsLab.toggleTrait('scar')" style="width: 100%; text-align: left;">
+                        🩹 Fall off Skateboard (Get Scar) ${this.state.scar ? '✅' : ''}
+                    </button>
+                </div>
+            </div>
+        `;
+    },
+
+    setTrait(key, value) {
+        this.state[key] = value;
+        this.renderTabs();
+    },
+
+    toggleTrait(key) {
+        this.state[key] = !this.state[key];
+        this.renderTabs();
+    },
+
+    start() { },
+    stop() { }
+};
+
+
+/* --- 5. Generic Lab (Placeholder) --- */
 const GenericLab = {
     render(container, topic) {
         container.innerHTML = `
