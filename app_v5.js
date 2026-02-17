@@ -449,6 +449,23 @@ function renderStrands(overrideSpeech = null) {
         controlsEl.appendChild(purposeBox);
     }
 
+    // --- Scroll Indicator Logic ---
+    const scrollInd = document.getElementById('scroll-indicator');
+    if (scrollInd) {
+        scrollInd.style.display = 'flex'; // Show it
+        scrollInd.onclick = () => {
+            // Scroll to chat area or avatar
+            const avatar = document.querySelector('.avatar-container');
+            if (avatar) avatar.scrollIntoView({ behavior: 'smooth' });
+            // Hide it after clicking? Optional. Use a timeout or scroll listener.
+            // For now, let's keep it visible until they interact or leave.
+        };
+    }
+
+    // Hide scroll indicator if we leave this view (handled by rendering other views or re-rendering)
+    // But we should ensure it's hidden when we go to question view.
+    // I'll add a helper to hide it in `renderComprehensionControls` later or generally.
+
     if (overrideSpeech) {
         speak(overrideSpeech);
     } else {
@@ -536,6 +553,10 @@ function startComprehensionPhase() {
 }
 
 function renderComprehensionControls() {
+    // Hide scroll indicator in question view
+    const scrollInd = document.getElementById('scroll-indicator');
+    if (scrollInd) scrollInd.style.display = 'none';
+
     const controlsEl = document.querySelector('.controls');
     const grid = document.createElement('div');
     grid.className = 'options-grid';
