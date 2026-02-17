@@ -665,32 +665,65 @@ button:hover {
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     display: none;
     /* Hidden by default */
-    /* Scrollbar */
+    /* Flex for layout (header top, strands middle, logout bottom) */
+    display: flex;
+    flex-direction: column;
   }
 
-  .app-sidebar::-webkit-scrollbar {
-    width: 6px;
+  /* Ensure content that was appended directly is wrapped or handled? 
+   Actually, flex-direction column works for direct children. 
+   We just need to make sure the "display: none" override in JS handles flex.
+   In JS we set display='block', which breaks flex. We should set display='flex'.
+*/
+  .app-sidebar[style*="display: block"] {
+    display: flex !important;
   }
 
-  .app-sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
+  .logout-btn-sidebar:hover {
+    background: rgba(239, 68, 68, 0.4) !important;
+    border-color: rgba(239, 68, 68, 0.6) !important;
+    color: #fff !important;
   }
 
-  /* Adjust Container to fit alongside sidebar */
-  .container {
-    flex: 1;
-    /* Take remaining space */
-    max-width: 900px;
-    /* Or unset max-width if flexibility needed */
-    width: auto;
-    /* Override previous fixed width */
-    margin: 0;
-    /* Override auto margin */
+  /* Scrollbar */
+}
+
+.app-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+/* Adjust Container to fit alongside sidebar */
+.container {
+  flex: 1;
+  /* Take remaining space */
+  max-width: 900px;
+  /* Or unset max-width if flexibility needed */
+  width: auto;
+  /* Override previous fixed width */
+  margin: 0;
+  /* Override auto margin */
+  height: auto;
+  min-height: 85vh;
+  /* Reset padding since wrapper handles it */
+  padding: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .app-wrapper {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .app-sidebar {
+    width: 100%;
+    flex: none;
     height: auto;
-    min-height: 85vh;
-    /* Reset padding since wrapper handles it */
-    padding: 0;
   }
 
   /* Responsive */
@@ -704,24 +737,11 @@ button:hover {
       width: 100%;
       flex: none;
       height: auto;
+      max-height: 300px;
+      position: static;
     }
 
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .app-wrapper {
-        flex-direction: column;
-        padding: 1rem;
-      }
-
-      .app-sidebar {
-        width: 100%;
-        flex: none;
-        height: auto;
-        max-height: 300px;
-        position: static;
-      }
-
-      .container {
-        width: 100%;
-      }
+    .container {
+      width: 100%;
     }
+  }
