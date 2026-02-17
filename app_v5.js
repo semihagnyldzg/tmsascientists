@@ -401,7 +401,11 @@ function renderStrands(overrideSpeech = null) {
             });
 
             // --- Interactive Simulation (As a topic item) ---
-            if (s.title.includes('Weather') || s.code === 'ESS.5.1') {
+            let simType = null;
+            if (s.title.includes('Weather') || s.code === 'ESS.5.1') simType = 'weather';
+            if (s.title.includes('Force') || s.code === 'P.5.1') simType = 'forces';
+
+            if (simType) {
                 const simItem = document.createElement('li');
                 simItem.className = 'topic-item';
                 simItem.innerHTML = '🧪 <b>Interactive Simulation</b>';
@@ -410,8 +414,8 @@ function renderStrands(overrideSpeech = null) {
                 simItem.style.color = '#60a5fa';
 
                 simItem.onclick = () => {
-                    if (typeof WeatherLab !== 'undefined') {
-                        WeatherLab.open();
+                    if (typeof SimManager !== 'undefined') {
+                        SimManager.open(simType);
                     } else {
                         alert("Simulation module loading...");
                     }
