@@ -246,8 +246,11 @@ window.startApp = function () {
         };
     }
 
-    addMessage(pedagogyData.intro_message, 'sestin');
-    speak(pedagogyData.intro_message, () => {
+    const studentName = state.currentUser ? state.currentUser.name : 'Scientist';
+    const welcomeMsg = `Welcome Scientist ${studentName}. ${pedagogyData.intro_message}`;
+
+    addMessage(welcomeMsg, 'sestin');
+    speak(welcomeMsg, () => {
         renderGrades();
     });
 
@@ -265,7 +268,7 @@ window.startApp = function () {
         if (elapsed >= WARNING_TIME && !warningShown) {
             warningShown = true;
             const studentName = state.currentUser ? state.currentUser.name.split(' ')[0] : 'Scientist';
-            const warningMsg = `Attention Scientist ${studentName}. We have 5 minutes remaining in today's session. Let's make them count!`;
+            const warningMsg = `Attention ${studentName}. We have 5 minutes remaining in today's session. Let's make them count!`;
             addMessage(`⏰ ${warningMsg}`, 'sestin');
             speak(warningMsg);
         }
@@ -274,7 +277,7 @@ window.startApp = function () {
         if (elapsed >= SESSION_DURATION) {
             clearInterval(state.sessionInterval);
             const studentName = state.currentUser ? state.currentUser.name.split(' ')[0] : 'Scientist';
-            const endMsg = `Great work today, Scientist ${studentName}! Session complete. Logging out now...`;
+            const endMsg = `Great work today, ${studentName}! Session complete. Logging out now...`;
             speak(endMsg);
             addMessage(`🛑 ${endMsg}`, 'sestin');
 
