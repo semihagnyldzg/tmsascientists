@@ -338,23 +338,20 @@ function renderStrands(overrideSpeech = null) {
     const controlsEl = document.querySelector('.controls');
     controlsEl.innerHTML = '';
 
-    // Create a wrapper for the top controls to ensure spacing
-    const topBar = document.createElement('div');
-    topBar.style.display = 'flex';
-    topBar.style.justifyContent = 'space-between';
-    topBar.style.alignItems = 'center';
-    topBar.style.marginBottom = '1.5rem';
-    topBar.style.width = '100%';
+    // topBar definition removed as it is no longer needed for the back button structure
+
 
     // --- Back Button ---
+    // --- Back Button (Outside Container) ---
     const backBtn = document.createElement('button');
     backBtn.className = 'back-btn';
-    backBtn.innerHTML = '⬅ Grades'; // Shorter text
+    backBtn.innerHTML = '⬅ Back'; // Simplified text
     backBtn.onclick = () => {
         window.speechSynthesis.cancel();
         renderGrades();
     };
-    topBar.appendChild(backBtn);
+    controlsEl.appendChild(backBtn); // Append directly to controls, before container
+    // ---------------------------------------
 
     // --- Speech Replay Button (Requested) ---
     const speechBtn = document.createElement('button');
@@ -366,15 +363,22 @@ function renderStrands(overrideSpeech = null) {
     speechBtn.onclick = () => {
         if (overrideSpeech) speak(overrideSpeech);
     };
-    topBar.appendChild(speechBtn);
+    // topBar.appendChild(speechBtn); // Old location
     // -------------------------
 
     const container = document.createElement('div');
     container.className = 'strands-container';
     container.style.width = '100%';
 
-    // Add the top bar to the container
-    container.appendChild(topBar);
+    // Add speech button to container top bar (re-creating top bar inside container for speech btn only)
+    const speechBar = document.createElement('div');
+    speechBar.style.display = 'flex';
+    speechBar.style.justifyContent = 'flex-end'; // Align speech button to right
+    speechBar.style.alignItems = 'center';
+    speechBar.style.marginBottom = '1.5rem';
+    speechBar.style.width = '100%';
+    speechBar.appendChild(speechBtn);
+    container.appendChild(speechBar);
 
     // Intro Text Display (To fix overlap, putting it IN the flow, not as a chat bubble)
     const introText = document.createElement('div');
@@ -410,20 +414,8 @@ function renderStrands(overrideSpeech = null) {
         container.appendChild(purposeBox);
     }
 
-    const randomBtn = document.createElement('button');
-    randomBtn.className = 'strand-card';
-    randomBtn.style.background = 'linear-gradient(135deg, #ec4899, #8b5cf6)';
-    randomBtn.style.textAlign = 'center';
-    randomBtn.style.display = 'block';
-    randomBtn.style.width = '100%';
-    randomBtn.style.padding = '1.5rem';
-    randomBtn.style.textAlign = 'center';
-    randomBtn.style.marginBottom = '2rem';
-    randomBtn.innerHTML = `<span style="font-size:1.5rem; color: white; font-weight: 800;">📚 Vocabulary</span>`;
-    randomBtn.style.cursor = 'pointer';
+    // Vocabulary Button Removed
 
-    randomBtn.onclick = () => startRandomQuestion();
-    container.appendChild(randomBtn);
 
     // ... (rest of renderStrands) ...
 
@@ -548,7 +540,7 @@ function renderComprehensionControls() {
     // --- Back Button (Top) ---
     const backBtn = document.createElement('button');
     backBtn.className = 'back-btn';
-    backBtn.innerHTML = '⬅ Back to Topics';
+    backBtn.innerHTML = '⬅ Back';
     backBtn.style.marginBottom = '1rem';
 
     // Explicitly set style if CSS fails to load or conflict
