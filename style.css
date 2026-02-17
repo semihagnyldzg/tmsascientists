@@ -749,3 +749,234 @@ button:hover {
     /* Add spacing between content and sidebar */
   }
 }
+
+/* --- Fixed Back Button --- */
+.back-btn {
+  position: fixed;
+  top: 80px;
+  /* Below header/logout */
+  left: 20px;
+  z-index: 999;
+  background: rgba(30, 41, 59, 0.8);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: rgba(30, 41, 59, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Weather Simulation Lab --- */
+.sim-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+}
+
+.sim-container {
+  width: 90%;
+  max-width: 900px;
+  height: 80vh;
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+  position: relative;
+  color: #1e293b;
+}
+
+.sim-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 20;
+}
+
+.sim-header {
+  padding: 1.5rem;
+  background: #f1f5f9;
+  border-bottom: 1px solid #cbd5e1;
+  text-align: center;
+}
+
+.sim-header h2 {
+  margin: 0;
+  color: #334155;
+}
+
+.sim-scene {
+  flex: 1;
+  position: relative;
+  background: linear-gradient(to bottom, #bfdbfe, #dbeafe);
+  transition: background 1s ease;
+  overflow: hidden;
+}
+
+.sim-sun {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 80px;
+  height: 80px;
+  background: #fbbf24;
+  border-radius: 50%;
+  box-shadow: 0 0 40px orange;
+  transition: all 0.5s ease;
+}
+
+.sim-clouds {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: transparent;
+  opacity: 0;
+  transition: all 1s ease;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.sim-clouds::before,
+.sim-clouds::after {
+  content: '';
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+.sim-clouds::before {
+  width: 150px;
+  height: 60px;
+  top: 40px;
+  left: 100px;
+  box-shadow: 200px 20px 0 -10px #fff, 400px 0 0 -5px #fff;
+}
+
+.sim-clouds::after {
+  width: 120px;
+  height: 50px;
+  top: 60px;
+  right: 150px;
+  box-shadow: -150px 10px 0 -5px #fff;
+}
+
+.sim-ocean {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  background: linear-gradient(to top, #1e3a8a, #3b82f6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: bold;
+  z-index: 10;
+}
+
+/* Particles */
+.sim-particle {
+  position: absolute;
+  pointer-events: none;
+}
+
+.vapor {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: rise 3s linear forwards;
+}
+
+.rain {
+  width: 3px;
+  height: 15px;
+  background: #60a5fa;
+  animation: fall 1s linear forwards;
+}
+
+.snow {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  animation: fall 2s linear forwards;
+}
+
+@keyframes rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translateY(-300px) scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(400px);
+  }
+}
+
+.sim-controls {
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.sim-controls label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #475569;
+}
+
+input[type=range] {
+  width: 80%;
+  accent-color: #f59e0b;
+  /* Orange slider */
+  cursor: pointer;
+}
+
+.sim-status {
+  font-weight: 500;
+  color: #64748b;
+}
