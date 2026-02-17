@@ -401,10 +401,13 @@ function renderStrands(overrideSpeech = null) {
             });
 
             // --- Interactive Simulation (As a topic item) ---
-            let simType = null;
-            if (s.title.includes('Weather') || s.code === 'ESS.5.1') simType = 'weather';
-            if (s.title.includes('Force') || s.code === 'P.5.1') simType = 'forces';
+            let simType = 'generic'; // Default to generic for ALL standards
 
+            // Specific overrides
+            if (s.title.includes('Weather') || s.code.includes('ESS.5.1') || s.code.includes('E.1')) simType = 'weather';
+            if (s.title.includes('Force') || s.code.includes('P.5.1')) simType = 'forces';
+
+            // Note: We show the link for EVERY strands/standard now.
             if (simType) {
                 const simItem = document.createElement('li');
                 simItem.className = 'topic-item';
@@ -415,7 +418,7 @@ function renderStrands(overrideSpeech = null) {
 
                 simItem.onclick = () => {
                     if (typeof SimManager !== 'undefined') {
-                        SimManager.open(simType);
+                        SimManager.open(simType, s.title);
                     } else {
                         alert("Simulation module loading...");
                     }

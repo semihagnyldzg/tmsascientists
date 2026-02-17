@@ -29,7 +29,7 @@ const SimManager = {
         });
     },
 
-    open(type) {
+    open(type, topic = "Science Topic") {
         this.init();
 
         // Push history state so Back button works
@@ -44,6 +44,10 @@ const SimManager = {
         } else if (type === 'forces') {
             ForcesLab.render(container);
             this.currentLab = ForcesLab;
+        } else {
+            // Default to Generic
+            GenericLab.render(container, topic);
+            this.currentLab = GenericLab;
         }
 
         this.overlay.style.display = 'flex';
@@ -68,6 +72,31 @@ const SimManager = {
         }
         this.currentLab = null;
     }
+};
+
+/* --- 3. Generic Lab (Placeholder) --- */
+const GenericLab = {
+    render(container, topic) {
+        container.innerHTML = `
+            <div class="sim-header">
+                <h2>🧪 Interactive Lab: ${topic}</h2>
+                <p>Explore concepts related to ${topic}.</p>
+            </div>
+            <div style="padding: 2rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; background: #f8fafc;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">🚧</div>
+                <h3 style="color: #475569;">Simulation Under Construction</h3>
+                <p style="color: #64748b; max-width: 400px; line-height: 1.6;">
+                    Our scientists are currently building the interactive simulation for <b>${topic}</b>. 
+                    Check back soon for updates!
+                </p>
+                <div style="margin-top: 2rem; padding: 1rem; background: #e0f2fe; border-radius: 12px; color: #0369a1;">
+                    💡 <b>Tip:</b> Try the <i>Weather</i> or <i>Forces & Motion</i> labs to see what's coming!
+                </div>
+            </div>
+        `;
+    },
+    start() { },
+    stop() { }
 };
 
 /* --- 1. Weather Lab (Refactored) --- */
