@@ -545,6 +545,23 @@ function renderComprehensionControls() {
     const grid = document.createElement('div');
     grid.className = 'options-grid';
 
+    // --- Back Button (Top) ---
+    const backBtn = document.createElement('button');
+    backBtn.className = 'back-btn';
+    backBtn.innerHTML = '⬅ Back to Topics';
+    backBtn.style.marginBottom = '1rem';
+
+    // Explicitly set style if CSS fails to load or conflict
+    backBtn.style.color = '#fff';
+    backBtn.style.fontWeight = 'bold';
+
+    backBtn.onclick = () => {
+        cancelSpeech();
+        renderStrands();
+    };
+    controlsEl.appendChild(backBtn);
+    // -------------------------
+
     // Helper: Stop speech on any interaction
     const cancelSpeech = () => {
         window.speechSynthesis.cancel();
@@ -596,17 +613,8 @@ function renderComprehensionControls() {
     };
 
 
-    // --- Back Button ---
-    const backBtn = document.createElement('button');
-    backBtn.className = 'option-btn';
-    backBtn.style.background = '#64748b'; // Slate gray
-    backBtn.textContent = '⬅ Back to Topics';
-    backBtn.onclick = () => {
-        cancelSpeech();
-        renderStrands();
-    };
-    grid.appendChild(backBtn);
-    // -------------------
+    // Back button removed from here
+
 
     grid.appendChild(speakBtn);
     grid.appendChild(typeBtn); // Added Type Button
