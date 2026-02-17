@@ -342,32 +342,76 @@ function renderStrands(overrideSpeech = null) {
 
 
     // --- Back Button ---
-    // --- Back Button (Outside Container) ---
+    // --- Back Button (Top of Controls) ---
     const backBtn = document.createElement('button');
     backBtn.className = 'back-btn';
-    backBtn.innerHTML = '⬅ Back'; // Simplified text
+    backBtn.innerHTML = '⬅ Back';
     backBtn.onclick = () => {
         window.speechSynthesis.cancel();
+        // Hide sidebar when going back
+        const sidebar = document.getElementById('app-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
         renderGrades();
     };
-    controlsEl.appendChild(backBtn); // Append directly to controls, before container
+    controlsEl.appendChild(backBtn);
     // ---------------------------------------
 
-    // Listen Button Removed
+    // --- EXTERNAL SIDEBAR LOGIC ---
+    const appSidebar = document.getElementById('app-sidebar');
+    if (appSidebar) {
+        appSidebar.innerHTML = ''; // Clear previous content
+        appSidebar.style.display = 'block'; // Show it!
 
-    // --- NEW SPLIT LAYOUT ---
-    const splitLayout = document.createElement('div');
-    splitLayout.className = 'split-layout';
+        // Sidebar Header
+        const sbHeader = document.createElement('h3');
+        sbHeader.textContent = "📚 Standards";
+        sbHeader.style.color = "#a5b4fc";
+        sbHeader.style.marginBottom = "1rem";
+        sbHeader.style.textAlign = "center";
+        appSidebar.appendChild(sbHeader);
 
-    // 1. Sidebar (Standards List)
-    const sidebar = document.createElement('div');
-    sidebar.className = 'standards-sidebar';
+        // Populate Sidebar
+        state.currentGrade.strands.forEach(s => {
+            const card = document.createElement('div');
+            card.className = 'strand-card';
+            card.style.marginBottom = '1rem';
 
-    // 2. Main Content (Intro + Interaction)
-    const mainContent = document.createElement('div');
-    mainContent.className = 'main-content';
+            const header = document.createElement('div');
+            header.className = 'strand-header';
+            header.innerHTML = `<span>${s.code || ''}</span> ${s.title}`;
+            card.appendChild(header);
 
-    // --- Populate Main Content ---
+            const list = document.createElement('ul');
+            list.className = 'topic-list';
+            const visibleQuestions = s.questions.slice(0, 5);
+
+            visibleQuestions.forEach((q, idx) => {
+                const item = document.createElement('li');
+                item.className = 'topic-item';
+                const topicDisplay = q.topic ? q.topic : `Question ${idx + 1}`;
+                item.textContent = `🔬 ${topicDisplay}`;
+                item.onclick = () => {
+                    // Hide sidebar on mobile selection? Optional.
+                    selectTopic(q, s);
+                };
+                list.appendChild(item);
+            });
+
+            if (s.questions.length > 5) {
+                const more = document.createElement('li');
+                more.className = 'topic-item';
+                more.style.fontStyle = 'italic';
+                more.innerText = `...and ${s.questions.length - 5} more questions (Random)`;
+                more.onclick = () => startRandomQuestion();
+                list.appendChild(more);
+            }
+
+            card.appendChild(list);
+            appSidebar.appendChild(card);
+        });
+    }
+
+    // --- MAIN CONTENT AREA (Inside Controls) ---
 
     // Intro Text
     const introText = document.createElement('div');
@@ -377,8 +421,10 @@ function renderStrands(overrideSpeech = null) {
     introText.style.color = '#e2e8f0';
     introText.style.fontStyle = 'italic';
     introText.style.borderLeft = '4px solid #3b82f6';
+    introText.style.marginTop = '1rem';
+    introText.style.marginBottom = '2rem';
     introText.innerHTML = `"${overrideSpeech || state.currentGrade.intro_message}"`;
-    mainContent.appendChild(introText);
+    controlsEl.appendChild(introText);
 
     // Purpose Statement (SciELA only)
     if (state.currentGrade.id === 'SciELA') {
@@ -394,62 +440,12 @@ function renderStrands(overrideSpeech = null) {
                 <span>🧬</span> Science & Literacy Lab
             </h3>
             <p style="margin-bottom:0; line-height:1.6;">
-                This platform is designed to help you practice for your <strong>EOG Science</strong> exams 
+                This platform is designed to help you practice for your <strong>EOG Science</strong> exams
                 while strengthening the connection between <strong>Science and Literacy skills</strong>.
             </p>
         `;
-        mainContent.appendChild(purposeBox);
+        controlsEl.appendChild(purposeBox);
     }
-
-    // Vocabulary Button Removed
-
-    // --- Populate Sidebar (Strands) ---
-    state.currentGrade.strands.forEach(s => {
-        const card = document.createElement('div');
-        card.className = 'strand-card';
-        // Remove bottom margin in sidebar as grid gap handles it, or keep for spacing
-        card.style.marginBottom = '0';
-
-        const header = document.createElement('div');
-        header.className = 'strand-header';
-        header.innerHTML = `<span>${s.code || ''}</span> ${s.title}`;
-        card.appendChild(header);
-
-        const list = document.createElement('ul');
-        list.className = 'topic-list';
-        // Show ALL questions in sidebar? Or keep limit? 
-        // Sidebar usually implies quick access. Let's keep existing logic but maybe expand?
-        // User didn't specify, but "standards on left" implies the list.
-        const visibleQuestions = s.questions.slice(0, 5);
-
-        visibleQuestions.forEach((q, idx) => {
-            const item = document.createElement('li');
-            item.className = 'topic-item';
-            const topicDisplay = q.topic ? q.topic : `Question ${idx + 1}`;
-            item.textContent = `🔬 ${topicDisplay}`;
-            item.onclick = () => selectTopic(q, s);
-            list.appendChild(item);
-        });
-
-        if (s.questions.length > 5) {
-            const more = document.createElement('li');
-            more.className = 'topic-item';
-            more.style.fontStyle = 'italic';
-            more.innerText = `...and ${s.questions.length - 5} more questions (Random)`;
-            // Only random button can access them currently unless we add a "Show All" toggle.
-            // For now, keep as is.
-            more.onclick = () => startRandomQuestion(); // Or maybe just make it clickable to random?
-            list.appendChild(more);
-        }
-
-        card.appendChild(list);
-        sidebar.appendChild(card);
-    });
-
-    // Assemble Layout
-    splitLayout.appendChild(sidebar);
-    splitLayout.appendChild(mainContent);
-    controlsEl.appendChild(splitLayout);
 
     if (overrideSpeech) {
         speak(overrideSpeech);
