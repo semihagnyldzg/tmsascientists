@@ -714,21 +714,29 @@ button:hover {
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
+/* Responsive */
+@media (max-width: 768px) {
   .app-wrapper {
     flex-direction: column;
     padding: 1rem;
+  }
+
+  .container {
+    width: 100%;
+    order: 1;
+    /* Main content first on mobile */
   }
 
   .app-sidebar {
     width: 100%;
     flex: none;
     height: auto;
-    max-height: 300px;
+    max-height: 400px;
+    /* Allow a bit more space, or auto */
     position: static;
-  }
-
-  .container {
-    width: 100%;
+    order: 2;
+    /* Sidebar below content on mobile */
+    margin-top: 2rem;
+    /* Add spacing between content and sidebar */
   }
 }
