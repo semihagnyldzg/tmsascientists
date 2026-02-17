@@ -596,6 +596,18 @@ function renderComprehensionControls() {
     };
 
 
+    // --- Back Button ---
+    const backBtn = document.createElement('button');
+    backBtn.className = 'option-btn';
+    backBtn.style.background = '#64748b'; // Slate gray
+    backBtn.textContent = '⬅ Back to Topics';
+    backBtn.onclick = () => {
+        cancelSpeech();
+        renderStrands();
+    };
+    grid.appendChild(backBtn);
+    // -------------------
+
     grid.appendChild(speakBtn);
     grid.appendChild(typeBtn); // Added Type Button
     grid.appendChild(decomposeBtn);
