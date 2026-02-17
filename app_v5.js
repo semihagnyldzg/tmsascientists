@@ -383,6 +383,26 @@ function renderStrands(overrideSpeech = null) {
             header.innerHTML = `<span>${s.code || ''}</span> ${s.title}`;
             card.appendChild(header);
 
+            // --- Weather Lab Button (Special for Weather Standards) ---
+            if (s.title.includes('Weather') || s.code === 'ESS.5.1') {
+                const labBtn = document.createElement('button');
+                labBtn.className = 'topic-item'; // Reuse topic style for now or make custom
+                labBtn.style.background = 'linear-gradient(90deg, #3b82f6, #60a5fa)';
+                labBtn.style.color = 'white';
+                labBtn.style.fontWeight = 'bold';
+                labBtn.style.textAlign = 'center';
+                labBtn.style.justifyContent = 'center';
+                labBtn.innerHTML = '🧪 Open Weather Lab';
+                labBtn.onclick = () => {
+                    if (typeof WeatherLab !== 'undefined') {
+                        WeatherLab.open();
+                    } else {
+                        alert("Simulation module loading...");
+                    }
+                };
+                card.appendChild(labBtn);
+            }
+
             const list = document.createElement('ul');
             list.className = 'topic-list';
             const visibleQuestions = s.questions.slice(0, 5);
