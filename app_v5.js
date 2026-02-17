@@ -355,30 +355,37 @@ function renderStrands(overrideSpeech = null) {
 
     // Listen Button Removed
 
-    const container = document.createElement('div');
-    container.className = 'strands-container';
-    container.style.width = '100%';
+    // --- NEW SPLIT LAYOUT ---
+    const splitLayout = document.createElement('div');
+    splitLayout.className = 'split-layout';
 
+    // 1. Sidebar (Standards List)
+    const sidebar = document.createElement('div');
+    sidebar.className = 'standards-sidebar';
 
-    // Intro Text Display (To fix overlap, putting it IN the flow, not as a chat bubble)
+    // 2. Main Content (Intro + Interaction)
+    const mainContent = document.createElement('div');
+    mainContent.className = 'main-content';
+
+    // --- Populate Main Content ---
+
+    // Intro Text
     const introText = document.createElement('div');
     introText.style.background = '#1e293b';
     introText.style.padding = '1rem';
     introText.style.borderRadius = '10px';
-    introText.style.marginBottom = '2rem';
     introText.style.color = '#e2e8f0';
     introText.style.fontStyle = 'italic';
     introText.style.borderLeft = '4px solid #3b82f6';
     introText.innerHTML = `"${overrideSpeech || state.currentGrade.intro_message}"`;
-    container.appendChild(introText);
+    mainContent.appendChild(introText);
 
-    // Purpose Statement (Moved here for SciELA only)
+    // Purpose Statement (SciELA only)
     if (state.currentGrade.id === 'SciELA') {
         const purposeBox = document.createElement('div');
         purposeBox.style.background = 'linear-gradient(135deg, #1e293b, #334155)';
         purposeBox.style.padding = '1.5rem';
         purposeBox.style.borderRadius = '12px';
-        purposeBox.style.marginBottom = '2rem';
         purposeBox.style.borderLeft = '5px solid #4ade80';
         purposeBox.style.color = '#e2e8f0';
         purposeBox.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
@@ -391,38 +398,18 @@ function renderStrands(overrideSpeech = null) {
                 while strengthening the connection between <strong>Science and Literacy skills</strong>.
             </p>
         `;
-        container.appendChild(purposeBox);
+        mainContent.appendChild(purposeBox);
     }
 
     // Vocabulary Button Removed
 
-
-    // ... (rest of renderStrands) ...
-
-    // Helper for Daily Tracking
-    function updateDailyActivity() {
-        if (!state.currentUser) return;
-        try {
-            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-            const log = JSON.parse(localStorage.getItem('tmsa_activity_log') || '{}');
-            const user = state.currentUser.username;
-
-            if (!log[user]) log[user] = { history: {} };
-            if (!log[user].history[today]) log[user].history[today] = 0;
-
-            log[user].last_active = Date.now();
-            log[user].history[today] += 1; // Add 1 minute
-
-            localStorage.setItem('tmsa_activity_log', JSON.stringify(log));
-            console.log(`Activity logged for ${user}: ${log[user].history[today]} mins`);
-        } catch (e) {
-            console.error("Tracking Error:", e);
-        }
-    }
-
+    // --- Populate Sidebar (Strands) ---
     state.currentGrade.strands.forEach(s => {
         const card = document.createElement('div');
         card.className = 'strand-card';
+        // Remove bottom margin in sidebar as grid gap handles it, or keep for spacing
+        card.style.marginBottom = '0';
+
         const header = document.createElement('div');
         header.className = 'strand-header';
         header.innerHTML = `<span>${s.code || ''}</span> ${s.title}`;
@@ -430,6 +417,9 @@ function renderStrands(overrideSpeech = null) {
 
         const list = document.createElement('ul');
         list.className = 'topic-list';
+        // Show ALL questions in sidebar? Or keep limit? 
+        // Sidebar usually implies quick access. Let's keep existing logic but maybe expand?
+        // User didn't specify, but "standards on left" implies the list.
         const visibleQuestions = s.questions.slice(0, 5);
 
         visibleQuestions.forEach((q, idx) => {
@@ -445,20 +435,55 @@ function renderStrands(overrideSpeech = null) {
             const more = document.createElement('li');
             more.className = 'topic-item';
             more.style.fontStyle = 'italic';
-            more.innerText = `...and ${s.questions.length - 5} more questions (Use Random Button)`;
+            more.innerText = `...and ${s.questions.length - 5} more questions (Random)`;
+            // Only random button can access them currently unless we add a "Show All" toggle.
+            // For now, keep as is.
+            more.onclick = () => startRandomQuestion(); // Or maybe just make it clickable to random?
             list.appendChild(more);
         }
 
         card.appendChild(list);
-        container.appendChild(card);
+        sidebar.appendChild(card);
     });
 
-    controlsEl.appendChild(container);
+    // Assemble Layout
+    splitLayout.appendChild(sidebar);
+    splitLayout.appendChild(mainContent);
+    controlsEl.appendChild(splitLayout);
 
     if (overrideSpeech) {
         speak(overrideSpeech);
     } else {
-        speak("Scientist, here are the topics. Pick one and let's get started!");
+        // Default speech triggers
+        if (state.currentGrade.id === 'SciELA') {
+            speak("Welcome to the Science and Literacy Lab. Please select a topic from the left.");
+        } else {
+            speak(state.currentGrade.intro_message);
+        }
+    }
+
+    // Update activity log
+    updateDailyActivity();
+}
+
+// Helper for Daily Tracking
+function updateDailyActivity() {
+    if (!state.currentUser) return;
+    try {
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const log = JSON.parse(localStorage.getItem('tmsa_activity_log') || '{}');
+        const user = state.currentUser.username;
+
+        if (!log[user]) log[user] = { history: {} };
+        if (!log[user].history[today]) log[user].history[today] = 0;
+
+        log[user].last_active = Date.now();
+        log[user].history[today] += 1; // Add 1 minute
+
+        localStorage.setItem('tmsa_activity_log', JSON.stringify(log));
+        console.log(`Activity logged for ${user}: ${log[user].history[today]} mins`);
+    } catch (e) {
+        console.error("Tracking Error:", e);
     }
 }
 

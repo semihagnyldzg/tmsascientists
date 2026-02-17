@@ -153,6 +153,7 @@ h1 {
   font-weight: 800;
   background: linear-gradient(135deg, #a5b4fc, #f472b6);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 30px rgba(79, 70, 229, 0.3);
 }
@@ -353,14 +354,17 @@ button {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text);
-  padding: 0.8rem 1.0rem; /* Reduced horizontal padding */
+  padding: 0.8rem 1.0rem;
+  /* Reduced horizontal padding */
   border-radius: 12px;
   cursor: pointer;
-  font-size: 0.95rem; /* Slightly smaller font */
+  font-size: 0.95rem;
+  /* Slightly smaller font */
   font-weight: 500;
   transition: all 0.2s;
   backdrop-filter: blur(5px);
-  white-space: normal; /* Allow wrapping */
+  white-space: normal;
+  /* Allow wrapping */
   line-height: 1.4;
   word-wrap: break-word;
 }
@@ -372,13 +376,15 @@ button:hover {
 }
 
 .option-btn {
-  flex: 1 1 45%; /* Allow 2 per row on small screens */
+  flex: 1 1 45%;
+  /* Allow 2 per row on small screens */
   min-width: 120px;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 50px; /* Ensure click area */
+  min-height: 50px;
+  /* Ensure click area */
 }
 
 .back-btn {
@@ -393,7 +399,8 @@ button:hover {
   gap: 5px;
   transition: all 0.2s;
   width: auto;
-  align-self: flex-start; /* Prevent full width */
+  align-self: flex-start;
+  /* Prevent full width */
 }
 
 .back-btn:hover {
@@ -577,9 +584,57 @@ button:hover {
   font-size: 3rem;
 }
 
-.skill-tech {
-  top: 5%;
-  left: 40%;
-  animation-duration: 55s;
-  font-size: 2.5rem;
+/* Split Layout for Topics */
+.split-layout {
+  display: flex;
+  gap: 2rem;
+  height: 100%;
+  min-height: 0;
+  /* Important for nested scrolling */
+  width: 100%;
+}
+
+.standards-sidebar {
+  flex: 1;
+  max-width: 350px;
+  overflow-y: auto;
+  padding-right: 1rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Custom Scrollbar for Sidebar */
+.standards-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.standards-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.main-content {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+/* Response to smaller screens */
+@media (max-width: 768px) {
+  .split-layout {
+    flex-direction: column-reverse;
+    /* Standards on bottom or top? User asked for sidebar, likely desktop focused. Let's stack naturally. */
+    flex-direction: column;
+  }
+
+  .standards-sidebar {
+    max-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    max-height: 300px;
+  }
 }
