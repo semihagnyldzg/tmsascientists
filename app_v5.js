@@ -353,32 +353,12 @@ function renderStrands(overrideSpeech = null) {
     controlsEl.appendChild(backBtn); // Append directly to controls, before container
     // ---------------------------------------
 
-    // --- Speech Replay Button (Requested) ---
-    const speechBtn = document.createElement('button');
-    speechBtn.className = 'option-btn'; // Recycle style
-    speechBtn.style.padding = '0.5rem 1rem';
-    speechBtn.style.fontSize = '1rem';
-    speechBtn.style.background = '#3b82f6'; // Blue
-    speechBtn.innerHTML = '🔊 Listen';
-    speechBtn.onclick = () => {
-        if (overrideSpeech) speak(overrideSpeech);
-    };
-    // topBar.appendChild(speechBtn); // Old location
-    // -------------------------
+    // Listen Button Removed
 
     const container = document.createElement('div');
     container.className = 'strands-container';
     container.style.width = '100%';
 
-    // Add speech button to container top bar (re-creating top bar inside container for speech btn only)
-    const speechBar = document.createElement('div');
-    speechBar.style.display = 'flex';
-    speechBar.style.justifyContent = 'flex-end'; // Align speech button to right
-    speechBar.style.alignItems = 'center';
-    speechBar.style.marginBottom = '1.5rem';
-    speechBar.style.width = '100%';
-    speechBar.appendChild(speechBtn);
-    container.appendChild(speechBar);
 
     // Intro Text Display (To fix overlap, putting it IN the flow, not as a chat bubble)
     const introText = document.createElement('div');
