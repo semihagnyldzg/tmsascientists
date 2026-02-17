@@ -1065,13 +1065,9 @@ window.handleSignUp = function () {
 
     console.log(`[Security Check] Attempting to register: '${baseUsername}'`);
 
-    // --- SECURITY CHECK (Added per user request) ---
-    // Only allow "semiha.yildiz"
-    if (baseUsername !== "semiha.yildiz") {
-        console.warn(`[Security Check] Denied access to '${baseUsername}'`);
-        alert("🔒 Access Restricted\n\nOnly authorized scientists can register at this time.\n\nPlease request access from the administrator.");
-        return;
-    }
+    // --- SECURITY CHECK REMOVED ---
+    // Open Sign Up Mode
+
 
     let username = baseUsername;
 
@@ -1162,39 +1158,35 @@ const initApp = () => {
     const welcomeHeader = document.getElementById('welcome-header');
 
     window.checkLogin = function () {
-        // Updated Access Control: Only "semiha yildiz" allowed
         const user = usernameInput ? usernameInput.value.trim().toLowerCase() : "";
         const pass = passwordInput ? passwordInput.value.trim() : "";
 
-        // Check if user is exactly "semiha yildiz" (allowing for semiha.yildiz format too if desired, user said "semiha yildiz")
-        // User request: "artik sadece semiha yildiz die girenlere izin ver" (now only allow those who enter as semiha yildiz)
-        // Also supports standard "ad.soyad" format if they enter "semiha.yildiz"
-        const allowedUser = "semiha yildiz";
-        const allowedUserAlt = "semiha.yildiz";
+        // Find user in roster (both default and custom)
+        const foundUser = window.studentRoster ? window.studentRoster.find(u => u.username === user && u.password === pass) : null;
 
-        if ((user === allowedUser || user === allowedUserAlt) && pass === "123") {
+        if (foundUser) {
             // Success!
-            let displayName = "Semiha Yildiz";
-            state.currentUser = { name: displayName, username: user };
+            state.currentUser = foundUser;
 
             if (loginOverlay) loginOverlay.style.display = 'none';
             if (startOverlay) startOverlay.style.display = 'flex';
-            if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${displayName}?`;
+            if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${foundUser.name.split(' ')[0]}?`;
 
+            // Reset pedagoy init message if needed
             if (pedagogyData) {
-                pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams and to strengthen the connection between science and literacy skills. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
+                pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
             }
 
-            const welcomeMsg = `Welcome Scientist ${displayName}. Let's get ready!`;
+            const welcomeMsg = `Welcome Scientist ${foundUser.name}. Let's get ready!`;
             speak(welcomeMsg);
 
         } else {
-            // Fail - Access Request Mode
+            // Fail
             if (loginError) {
                 loginError.style.display = 'block';
-                loginError.innerHTML = "🚫 <b>Access Restricted</b><br>This lab is currently locked.<br>Please contact the administrator to request access.";
+                loginError.innerHTML = "🚫 <b>Access Denied</b><br>Incorrect Username or Password.";
             }
-            alert("🔒 Access Restricted\n\nOnly authorized scientists can enter at this time.\n\nPlease request access from the administrator if you believe this is an error.");
+            alert("🔒 Access Denied\n\nPlease check your username and password.");
             if (passwordInput) passwordInput.value = '';
         }
     };
