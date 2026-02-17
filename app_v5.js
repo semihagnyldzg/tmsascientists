@@ -1200,7 +1200,7 @@ const initApp = () => {
 
             // Reset pedagoy init message if needed
             if (pedagogyData) {
-                pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
+                pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams and literacy skills. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
             }
 
             const welcomeMsg = `Welcome Scientist ${foundUser.name}. Let's get ready!`;
