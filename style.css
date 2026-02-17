@@ -724,24 +724,11 @@ button:hover {
     width: 100%;
     flex: none;
     height: auto;
+    max-height: 300px;
+    position: static;
   }
 
-  /* Responsive */
-  @media (max-width: 1024px) {
-    .app-wrapper {
-      flex-direction: column;
-      padding: 1rem;
-    }
-
-    .app-sidebar {
-      width: 100%;
-      flex: none;
-      height: auto;
-      max-height: 300px;
-      position: static;
-    }
-
-    .container {
-      width: 100%;
-    }
+  .container {
+    width: 100%;
   }
+}
