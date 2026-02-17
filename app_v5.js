@@ -308,24 +308,8 @@ function renderGrades() {
     ctrl.innerHTML = '';
 
     // Purpose Statement
-    const purposeBox = document.createElement('div');
-    purposeBox.style.background = 'linear-gradient(135deg, #1e293b, #334155)';
-    purposeBox.style.padding = '1.5rem';
-    purposeBox.style.borderRadius = '12px';
-    purposeBox.style.marginBottom = '2rem';
-    purposeBox.style.borderLeft = '5px solid #4ade80';
-    purposeBox.style.color = '#e2e8f0';
-    purposeBox.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-    purposeBox.innerHTML = `
-        <h3 style="margin-top:0; color:#4ade80; display:flex; align-items:center; gap:10px;">
-            <span>🧬</span> Science & Literacy Lab
-        </h3>
-        <p style="margin-bottom:0; line-height:1.6;">
-            This platform is designed to help you practice for your <strong>EOG Science</strong> exams 
-            while strengthening the connection between <strong>Science and Literacy skills</strong>.
-        </p>
-    `;
-    ctrl.appendChild(purposeBox);
+    // Purpose Statement Removed from here
+
 
     const grid = document.createElement('div');
     grid.className = 'options-grid';
@@ -403,6 +387,28 @@ function renderStrands(overrideSpeech = null) {
     introText.style.borderLeft = '4px solid #3b82f6';
     introText.innerHTML = `"${overrideSpeech || state.currentGrade.intro_message}"`;
     container.appendChild(introText);
+
+    // Purpose Statement (Moved here for SciELA only)
+    if (state.currentGrade.id === 'SciELA') {
+        const purposeBox = document.createElement('div');
+        purposeBox.style.background = 'linear-gradient(135deg, #1e293b, #334155)';
+        purposeBox.style.padding = '1.5rem';
+        purposeBox.style.borderRadius = '12px';
+        purposeBox.style.marginBottom = '2rem';
+        purposeBox.style.borderLeft = '5px solid #4ade80';
+        purposeBox.style.color = '#e2e8f0';
+        purposeBox.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+        purposeBox.innerHTML = `
+            <h3 style="margin-top:0; color:#4ade80; display:flex; align-items:center; gap:10px;">
+                <span>🧬</span> Science & Literacy Lab
+            </h3>
+            <p style="margin-bottom:0; line-height:1.6;">
+                This platform is designed to help you practice for your <strong>EOG Science</strong> exams 
+                while strengthening the connection between <strong>Science and Literacy skills</strong>.
+            </p>
+        `;
+        container.appendChild(purposeBox);
+    }
 
     const randomBtn = document.createElement('button');
     randomBtn.className = 'strand-card';
