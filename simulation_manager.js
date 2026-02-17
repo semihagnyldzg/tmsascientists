@@ -19,10 +19,22 @@ const SimManager = {
             </div>
         `;
         document.body.appendChild(this.overlay);
+
+        // Handle Browser Back Button
+        window.addEventListener('popstate', (event) => {
+            // When back button is pressed, if lab is open, close it (UI only)
+            if (this.currentLab) {
+                this._closeUI();
+            }
+        });
     },
 
     open(type) {
         this.init();
+
+        // Push history state so Back button works
+        history.pushState({ simOpen: true }, '', '#simulation');
+
         const container = document.getElementById('sim-content');
         container.innerHTML = ''; // Clear previous
 
@@ -40,7 +52,14 @@ const SimManager = {
         }
     },
 
+    // Called by the Close Button
     close() {
+        // Go back in history, which triggers 'popstate' event to close UI
+        history.back();
+    },
+
+    // Internal clean close (called by popstate)
+    _closeUI() {
         if (this.overlay) {
             this.overlay.style.display = 'none';
         }
