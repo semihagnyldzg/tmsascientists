@@ -504,8 +504,8 @@ function startComprehensionPhase() {
 
     const cleanTitle = s.title;
     const intros = [
-        `Okay Scientist, we're tackling ${cleanTitle}.`,
-        `Alright Scientist, focusing on ${cleanTitle}.`
+        `Okay, we're tackling ${cleanTitle}.`,
+        `Alright, focusing on ${cleanTitle}.`
     ];
     const intro = intros[Math.floor(Math.random() * intros.length)];
     const hooks = [
@@ -731,7 +731,7 @@ function presentOptions() {
     const q = state.currentQuestion;
     addMessage("Hypothesis Mode: Which one feels right?", 'sestin');
     renderOptions(q.options);
-    speak("Scientist, here are the choices. Which one calls out to you?");
+    speak("Here are the choices. Which one calls out to you?");
 }
 
 function renderOptions(options) {
