@@ -44,6 +44,9 @@ const SimManager = {
         } else if (type === 'forces') {
             ForcesLab.render(container);
             this.currentLab = ForcesLab;
+        } else if (type === 'matter') {
+            MatterLab.render(container);
+            this.currentLab = MatterLab;
         } else {
             // Default to Generic
             GenericLab.render(container, topic);
@@ -74,7 +77,336 @@ const SimManager = {
     }
 };
 
-/* --- 3. Generic Lab (Placeholder) --- */
+/* --- 3. Matter Lab (Dual Mode) --- */
+const MatterLab = {
+    state: {
+        tab: 'phases', // 'phases' or 'mass'
+        temp: -20,     // Phase change temp
+        particles: [],
+        scaleItems: [],
+        isMelting: false
+    },
+    interval: null,
+    container: null,
+
+    render(container) {
+        this.container = container;
+        this.state.tab = 'phases'; // Reset to default
+        this.state.temp = -20;
+        this.state.scaleItems = [];
+        this.renderTabs();
+    },
+
+    renderTabs() {
+        this.container.innerHTML = `
+            <div class="sim-header">
+                <h2>⚗️ Matter: Properties & Change</h2>
+                <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 0.5rem;">
+                    <button onclick="MatterLab.switchTab('phases')" class="sim-tab-btn ${this.state.tab === 'phases' ? 'active' : ''}">States of Matter</button>
+                    <button onclick="MatterLab.switchTab('mass')" class="sim-tab-btn ${this.state.tab === 'mass' ? 'active' : ''}">Conservation of Mass</button>
+                </div>
+            </div>
+            <div id="matter-content" style="height: 60vh; position: relative; overflow: hidden;"></div>
+        `;
+
+        // Add styles for tabs if not present
+        if (!document.getElementById('matter-styles')) {
+            const style = document.createElement('style');
+            style.id = 'matter-styles';
+            style.innerHTML = `
+                .sim-tab-btn { padding: 8px 16px; border: none; background: #e2e8f0; border-radius: 20px; cursor: pointer; font-weight: bold; }
+                .sim-tab-btn.active { background: #3b82f6; color: white; }
+                .scale-item { transition: all 0.5s; cursor: pointer; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        this.renderContent();
+    },
+
+    switchTab(tab) {
+        this.state.tab = tab;
+        this.stop(); // Stop any running loops
+        this.renderTabs(); // Re-render wrapper to update active class
+        this.start(); // Restart loop if needed
+    },
+
+    renderContent() {
+        const content = document.getElementById('matter-content');
+        content.innerHTML = '';
+
+        if (this.state.tab === 'phases') {
+            this.renderPhases(content);
+        } else {
+            this.renderConservation(content);
+        }
+    },
+
+    /* --- Tab 1: Phase Changes --- */
+    renderPhases(content) {
+        content.innerHTML = `
+            <div class="sim-scene" id="phase-scene" style="background: #f1f5f9; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div id="particle-container" style="width: 300px; height: 300px; border: 4px solid #334155; background: white; position: relative; border-radius: 12px; overflow: hidden;"></div>
+                <div style="margin-top: 1rem; font-weight: bold; font-size: 1.2rem; color: #475569;" id="phase-label">SOLID (Ice)</div>
+            </div>
+            <div class="sim-controls">
+                <label>🌡️ Temperature: <span id="val-temp">-20</span>°C</label>
+                <input type="range" id="slider-temp" min="-50" max="150" value="-20" step="1" oninput="MatterLab.updateTemp(this.value)">
+                <div class="sim-status">Watch how particles move as heat increases!</div>
+            </div>
+        `;
+        this.initParticles();
+    },
+
+    initParticles() {
+        const container = document.getElementById('particle-container');
+        if (!container) return;
+
+        this.state.particles = [];
+        // Create 64 particles (8x8 grid for solid state)
+        for (let i = 0; i < 64; i++) {
+            const p = document.createElement('div');
+            p.style.width = '12px';
+            p.style.height = '12px';
+            p.style.background = '#3b82f6';
+            p.style.borderRadius = '50%';
+            p.style.position = 'absolute';
+            p.style.boxShadow = 'inset -2px -2px 4px rgba(0,0,0,0.2)';
+            container.appendChild(p);
+
+            // Randomize grid slightly for visual interest
+            const row = Math.floor(i / 8);
+            const col = i % 8;
+            this.state.particles.push({
+                el: p,
+                x: 60 + col * 20, // Initial grid pos
+                y: 60 + row * 20,
+                vx: 0, vy: 0,
+                baseX: 60 + col * 20,
+                baseY: 60 + row * 20
+            });
+        }
+        this.updateTemp(-20); // Set initial state
+    },
+
+    updateTemp(val) {
+        this.state.temp = parseInt(val);
+        const label = document.getElementById('phase-label');
+        const valDisp = document.getElementById('val-temp');
+        if (label) {
+            if (this.state.temp < 0) label.innerText = "SOLID (Ice)";
+            else if (this.state.temp < 100) label.innerText = "LIQUID (Water)";
+            else label.innerText = "GAS (Steam)";
+        }
+        if (valDisp) valDisp.innerText = this.state.temp;
+    },
+
+    tickPhases() {
+        const T = this.state.temp;
+        const speed = (T + 60) / 20; // Speed factor based on temp
+        const containerW = 300;
+        const containerH = 300;
+
+        this.state.particles.forEach(p => {
+            if (T < 0) {
+                // SOLID: Vibrate around base position
+                // Jitter increases with temp (approaching 0)
+                const jitter = (T + 50) * 0.05;
+                p.x = p.baseX + (Math.random() - 0.5) * jitter;
+                p.y = p.baseY + (Math.random() - 0.5) * jitter + 100; // Shift down for gravity effect
+            } else if (T < 100) {
+                // LIQUID: Flow at bottom
+                // Gravity pulls down, particles repel/collide roughly
+                p.vy += 0.5; // Gravity
+                p.vx += (Math.random() - 0.5) * speed * 0.5;
+                p.vy += (Math.random() - 0.5) * speed * 0.5;
+
+                // Bounds
+                if (p.y > containerH - 20) { p.y = containerH - 20; p.vy *= -0.5; }
+                if (p.x < 0) { p.x = 0; p.vx *= -1; }
+                if (p.x > containerW - 15) { p.x = containerW - 15; p.vx *= -1; }
+
+                // Move
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Dampen
+                p.vx *= 0.95;
+                p.vy *= 0.95;
+            } else {
+                // GAS: Fly everywhere
+                const gasSpeed = Math.max(2, (T - 80) / 10);
+                p.vx += (Math.random() - 0.5) * gasSpeed;
+                p.vy += (Math.random() - 0.5) * gasSpeed;
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Bounce off walls
+                if (p.x <= 0 || p.x >= containerW - 15) p.vx *= -1;
+                if (p.y <= 0 || p.y >= containerH - 15) p.vy *= -1;
+
+                // Clamp
+                p.x = Math.max(0, Math.min(containerW - 15, p.x));
+                p.y = Math.max(0, Math.min(containerH - 15, p.y));
+            }
+
+            p.el.style.left = p.x + 'px';
+            p.el.style.top = p.y + 'px';
+
+            // Color change
+            if (T > 100) p.el.style.background = '#94a3b8'; // Steam (Grayish)
+            else if (T > 0) p.el.style.background = '#3b82f6'; // Water (Blue)
+            else p.el.style.background = '#60a5fa'; // Ice (Light Blue)
+        });
+    },
+
+    /* --- Tab 2: Conservation of Mass --- */
+    renderConservation(content) {
+        content.innerHTML = `
+            <div class="sim-scene" style="background: #ecfccb; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+                
+                <!-- Weight Display -->
+                <div style="background: #333; color: #bef264; font-family: monospace; font-size: 3rem; padding: 10px 30px; border-radius: 8px; border: 4px solid #555; box-shadow: 0 4px 0 #111; margin-bottom: 2rem;">
+                    <span id="scale-value">0</span> g
+                </div>
+
+                <!-- Scale Platform -->
+                <div id="scale-zone" style="width: 300px; height: 15px; background: #9ca3af; border-radius: 4px; position: relative;">
+                    <!-- Items pile here -->
+                </div>
+                <div style="width: 100px; height: 80px; background: #4b5563; margin-top: 0px;"></div> <!-- Base -->
+
+                <!-- Inventory -->
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button onclick="MatterLab.addItem('ice')" class="sim-btn" style="background: #bfdbfe;">🧊 Add Ice (50g)</button>
+                    <button onclick="MatterLab.addItem('water')" class="sim-btn" style="background: #3b82f6; color: white;">💧 Add Water (100g)</button>
+                    <button onclick="MatterLab.addItem('salt')" class="sim-btn" style="background: white; border: 1px solid #ccc;">🧂 Add Salt (10g)</button>
+                </div>
+
+                <!-- Actions -->
+                <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                    <button onclick="MatterLab.mixItems()" class="sim-btn" style="background: #f59e0b; color: white;">🔥 Melt / Stir</button>
+                    <button onclick="MatterLab.resetScale()" class="sim-btn" style="background: #ef4444; color: white;">🗑️ Clear Scale</button>
+                </div>
+                
+                <p style="margin-top: 1rem; font-style: italic; color: #555;">Try adding items, checking the total, then melting/stirring. Does the weight change?</p>
+            </div>
+        `;
+        this.resetScale();
+    },
+
+    addItem(type) {
+        if (this.state.scaleItems.length > 3) {
+            alert("Scale is full!");
+            return;
+        }
+
+        let item = { type, id: Date.now() };
+        if (type === 'ice') { item.weight = 50; item.display = '🧊'; item.color = '#bfdbfe'; }
+        if (type === 'water') { item.weight = 100; item.display = '💧 Beaker'; item.color = '#3b82f6'; }
+        if (type === 'salt') { item.weight = 10; item.display = '🧂'; item.color = 'white'; }
+
+        this.state.scaleItems.push(item);
+        this.updateScaleVisuals();
+    },
+
+    mixItems() {
+        // Transform logic
+        // Ice -> Water
+        // Salt + Water -> Salt Water (Salt disappears visually or merges)
+        let changed = false;
+
+        // 1. Melt Ice
+        this.state.scaleItems.forEach(item => {
+            if (item.type === 'ice') {
+                item.type = 'water_puddle';
+                item.display = '💧 Puddle';
+                item.color = '#93c5fd';
+                changed = true;
+            }
+        });
+
+        // 2. Dissolve Salt if Water exists
+        const hasWater = this.state.scaleItems.some(i => i.type === 'water' || i.type === 'water_puddle');
+        if (hasWater) {
+            this.state.scaleItems.forEach(item => {
+                if (item.type === 'salt') {
+                    item.type = 'dissolved_salt';
+                    item.display = '(Dissolved)';
+                    item.color = 'transparent';
+                    // We don't remove it from array, so weight stays!
+                    changed = true;
+                }
+            });
+        }
+
+        if (changed) {
+            this.updateScaleVisuals();
+            alert("Physical Change Complete! Note the weight.");
+        } else {
+            alert("Nothing to change right now. Add ingredients!");
+        }
+    },
+
+    resetScale() {
+        this.state.scaleItems = [];
+        this.updateScaleVisuals();
+    },
+
+    updateScaleVisuals() {
+        const zone = document.getElementById('scale-zone');
+        const display = document.getElementById('scale-value');
+        if (!zone || !display) return;
+
+        zone.innerHTML = '';
+        let totalWeight = 0;
+
+        this.state.scaleItems.forEach((item, idx) => {
+            totalWeight += item.weight;
+
+            // Visual Block
+            const div = document.createElement('div');
+            div.innerText = item.display;
+            div.style.position = 'absolute';
+            div.style.bottom = '100%'; // Sit on top
+            div.style.left = (20 + idx * 60) + 'px';
+            div.style.width = '50px';
+            div.style.height = '50px';
+            div.style.background = item.color;
+            div.style.border = '2px solid #555';
+            div.style.borderRadius = '8px';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'center';
+            div.style.fontSize = '0.8rem';
+            div.style.textAlign = 'center';
+            div.style.transition = 'all 0.5s';
+
+            if (item.type === 'dissolved_salt') {
+                div.style.opacity = '0'; // Invisible but present
+                div.style.height = '0';
+            }
+
+            zone.appendChild(div);
+        });
+
+        display.innerText = totalWeight;
+    },
+
+    start() {
+        if (this.state.tab === 'phases') {
+            clearInterval(this.interval);
+            this.interval = setInterval(() => this.tickPhases(), 30);
+        }
+    },
+
+    stop() {
+        clearInterval(this.interval);
+    }
+};
+
+/* --- 4. Generic Lab (Placeholder) --- */
 const GenericLab = {
     render(container, topic) {
         container.innerHTML = `

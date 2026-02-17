@@ -406,6 +406,7 @@ function renderStrands(overrideSpeech = null) {
             // Specific overrides
             if (s.title.includes('Weather') || s.code.includes('ESS.5.1') || s.code.includes('E.1')) simType = 'weather';
             if (s.title.includes('Force') || s.code.includes('P.5.1')) simType = 'forces';
+            if (s.title.includes('Matter') || s.code.includes('PS.5.1')) simType = 'matter';
 
             // Note: We show the link for EVERY strands/standard now.
             if (simType) {
