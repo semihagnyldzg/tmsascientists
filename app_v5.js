@@ -383,25 +383,7 @@ function renderStrands(overrideSpeech = null) {
             header.innerHTML = `<span>${s.code || ''}</span> ${s.title}`;
             card.appendChild(header);
 
-            // --- Weather Lab Button (Special for Weather Standards) ---
-            if (s.title.includes('Weather') || s.code === 'ESS.5.1') {
-                const labBtn = document.createElement('button');
-                labBtn.className = 'topic-item'; // Reuse topic style for now or make custom
-                labBtn.style.background = 'linear-gradient(90deg, #3b82f6, #60a5fa)';
-                labBtn.style.color = 'white';
-                labBtn.style.fontWeight = 'bold';
-                labBtn.style.textAlign = 'center';
-                labBtn.style.justifyContent = 'center';
-                labBtn.innerHTML = '🧪 Open Weather Lab';
-                labBtn.onclick = () => {
-                    if (typeof WeatherLab !== 'undefined') {
-                        WeatherLab.open();
-                    } else {
-                        alert("Simulation module loading...");
-                    }
-                };
-                card.appendChild(labBtn);
-            }
+            card.appendChild(header);
 
             const list = document.createElement('ul');
             list.className = 'topic-list';
@@ -413,11 +395,29 @@ function renderStrands(overrideSpeech = null) {
                 const topicDisplay = q.topic ? q.topic : `Question ${idx + 1}`;
                 item.textContent = `🔬 ${topicDisplay}`;
                 item.onclick = () => {
-                    // Hide sidebar on mobile selection? Optional.
                     selectTopic(q, s);
                 };
                 list.appendChild(item);
             });
+
+            // --- Interactive Simulation (As a topic item) ---
+            if (s.title.includes('Weather') || s.code === 'ESS.5.1') {
+                const simItem = document.createElement('li');
+                simItem.className = 'topic-item';
+                simItem.innerHTML = '🧪 <b>Interactive Simulation</b>';
+                simItem.style.background = 'rgba(59, 130, 246, 0.1)';
+                simItem.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+                simItem.style.color = '#60a5fa';
+
+                simItem.onclick = () => {
+                    if (typeof WeatherLab !== 'undefined') {
+                        WeatherLab.open();
+                    } else {
+                        alert("Simulation module loading...");
+                    }
+                };
+                list.appendChild(simItem);
+            }
 
             if (s.questions.length > 5) {
                 const more = document.createElement('li');
