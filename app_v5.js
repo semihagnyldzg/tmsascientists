@@ -411,31 +411,6 @@ function renderStrands(overrideSpeech = null) {
             card.appendChild(list);
             appSidebar.appendChild(card);
         });
-
-        // --- Logout Button (Bottom of Sidebar) ---
-        const logoutContainer = document.createElement('div');
-        logoutContainer.style.marginTop = 'auto'; // Push to bottom
-        logoutContainer.style.paddingTop = '1rem';
-        logoutContainer.style.borderTop = '1px solid rgba(255,255,255,0.1)';
-
-        const logoutBtn = document.createElement('button');
-        logoutBtn.className = 'logout-btn-sidebar'; // New class
-        logoutBtn.innerHTML = '🚪 Logout';
-        logoutBtn.style.width = '100%';
-        logoutBtn.style.background = 'rgba(239, 68, 68, 0.2)'; // Red tint
-        logoutBtn.style.color = '#fca5a5';
-        logoutBtn.style.border = '1px solid rgba(239, 68, 68, 0.3)';
-
-        logoutBtn.onclick = () => {
-            if (confirm("Are you sure you want to end your session?")) {
-                // Clear user state
-                localStorage.removeItem('tmsa_current_user'); // If we were persisting
-                window.location.reload();
-            }
-        };
-
-        logoutContainer.appendChild(logoutBtn);
-        appSidebar.appendChild(logoutContainer);
     }
 
     // --- MAIN CONTENT AREA (Inside Controls) ---
@@ -1228,6 +1203,18 @@ const initApp = () => {
 
             const welcomeMsg = `Welcome Scientist ${foundUser.name}. Let's get ready!`;
             speak(welcomeMsg);
+
+            // Show Fixed Logout Button
+            const fixedLogoutBtn = document.getElementById('fixed-logout-btn');
+            if (fixedLogoutBtn) {
+                fixedLogoutBtn.style.display = 'block';
+                fixedLogoutBtn.onclick = () => {
+                    if (confirm("Are you sure you want to log out?")) {
+                        window.speechSynthesis.cancel();
+                        window.location.reload();
+                    }
+                };
+            }
 
         } else {
             // Fail
