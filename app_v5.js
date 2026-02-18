@@ -1571,8 +1571,7 @@ function renderJournal() {
     loadEntries();
 }
 
-loadEntries();
-}
+
 
 // --- PROGRESS REPORT UI ---
 async function renderProgressReport() {
