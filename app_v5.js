@@ -434,6 +434,13 @@ function renderStrands(overrideSpeech = null) {
 
                 simItem.onclick = () => {
                     if (typeof SimManager !== 'undefined') {
+                        // Log Activity
+                        if (window.fbManager && state.currentUser) {
+                            window.fbManager.saveActivityLog(state.currentUser.username, 'simulation_open', {
+                                simulation: simType,
+                                strand: s.title
+                            });
+                        }
                         // pass 'literacy' type if it is literacy, else simType
                         SimManager.open(isLiteracy ? 'literacy' : simType, s.title);
                     } else {
@@ -978,6 +985,15 @@ function finalizeAnswer() {
         addMessage("Correct! Amazing work.", 'sestin');
         speak("You nailed it! That is scientifically accurate.");
         state.consecutiveCorrect++;
+
+        // Log Activity
+        if (window.fbManager && state.currentUser) {
+            window.fbManager.saveActivityLog(state.currentUser.username, 'question_correct', {
+                topic: q.topic || "General",
+                strand: state.currentStrand ? state.currentStrand.title : "Unknown"
+            });
+        }
+
         if (state.consecutiveCorrect >= 3) {
             // Offer challenge - implementation simplified for this refactor
             // offerChallenge(); 
@@ -1249,9 +1265,10 @@ const initApp = () => {
         const welcomeMsg = `Welcome Scientist ${user.name}. Let's get ready!`;
         speak(welcomeMsg);
 
-        // Show Fixed Logout Button & Journal Button
+        // Show Fixed Logout Button & Journal Button & Stats
         const fixedLogoutBtn = document.getElementById('fixed-logout-btn');
         const fixedJournalBtn = document.getElementById('fixed-journal-btn');
+        const fixedStatsBtn = document.getElementById('fixed-stats-btn');
 
         if (fixedLogoutBtn) {
             fixedLogoutBtn.style.display = 'block';
@@ -1266,6 +1283,12 @@ const initApp = () => {
             fixedJournalBtn.style.display = 'block';
             fixedJournalBtn.onclick = () => {
                 renderJournal();
+            };
+        }
+        if (fixedStatsBtn) {
+            fixedStatsBtn.style.display = 'block';
+            fixedStatsBtn.onclick = () => {
+                renderProgressReport();
             };
         }
     }
@@ -1519,6 +1542,162 @@ function renderJournal() {
     }
 
     loadEntries();
+}
+
+loadEntries();
+}
+
+// --- PROGRESS REPORT UI ---
+async function renderProgressReport() {
+    // Hide other views
+    const existingOverlay = document.getElementById('progress-overlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'progress-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.background = 'rgba(15, 23, 42, 0.98)';
+    overlay.style.zIndex = '2000';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.padding = '2rem';
+    overlay.style.overflowY = 'auto';
+
+    const header = document.createElement('div');
+    header.style.display = 'flex';
+    header.style.justifyContent = 'space-between';
+    header.style.alignItems = 'center';
+    header.style.maxWidth = '800px';
+    header.style.margin = '0 auto 2rem auto';
+    header.style.width = '100%';
+
+    const title = document.createElement('h2');
+    title.innerHTML = `📊 Weekly Progress: ${state.currentUser.name}`;
+    title.style.color = '#fff';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close ❌';
+    closeBtn.className = 'option-btn';
+    closeBtn.onclick = () => overlay.remove();
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    overlay.appendChild(header);
+
+    // Fetch Data
+    const loading = document.createElement('p');
+    loading.textContent = "Analyzing your data... 🧠";
+    loading.style.color = "#ccc";
+    loading.style.textAlign = 'center';
+    overlay.appendChild(loading);
+
+    let logs = [];
+    if (window.fbManager) {
+        logs = await window.fbManager.getActivityLogs(state.currentUser.username, 7); // Last 7 days
+    }
+
+    loading.remove();
+
+    // Analyze Data
+    const correctAnswers = logs.filter(l => l.action === 'question_correct').length;
+    const simsOpened = logs.filter(l => l.action === 'simulation_open').length;
+
+    // Most practiced topic
+    const topicCounts = {};
+    logs.forEach(l => {
+        if (l.details && l.details.topic) {
+            topicCounts[l.details.topic] = (topicCounts[l.details.topic] || 0) + 1;
+        }
+    });
+    let topTopic = "None yet";
+    let maxCount = 0;
+    for (const [topic, count] of Object.entries(topicCounts)) {
+        if (count > maxCount) {
+            maxCount = count;
+            topTopic = topic;
+        }
+    }
+
+    // Grid Layout
+    const grid = document.createElement('div');
+    grid.style.maxWidth = '800px';
+    grid.style.margin = '0 auto';
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(200px, 1fr))';
+    grid.style.gap = '1.5rem';
+
+    // Cards
+    const createCard = (label, value, color) => {
+        const card = document.createElement('div');
+        card.style.background = 'rgba(255,255,255,0.05)';
+        card.style.padding = '1.5rem';
+        card.style.borderRadius = '12px';
+        card.style.borderTop = `4px solid ${color}`;
+        card.innerHTML = `<div style="font-size:0.9rem; color:#94a3b8; margin-bottom:5px;">${label}</div><div style="font-size:2rem; font-weight:bold; color:white;">${value}</div>`;
+        return card;
+    };
+
+    grid.appendChild(createCard("Questions Mastered", correctAnswers, "#4ade80"));
+    grid.appendChild(createCard("Simulations Explored", simsOpened, "#60a5fa"));
+    grid.appendChild(createCard("Top Focus Topic", topTopic, "#f472b6"));
+
+    overlay.appendChild(grid);
+
+    // Motivational Message
+    const msg = document.createElement('div');
+    msg.style.maxWidth = '800px';
+    msg.style.margin = '2rem auto';
+    msg.style.padding = '1rem';
+    msg.style.borderRadius = '8px';
+    msg.style.background = 'rgba(74, 222, 128, 0.1)';
+    msg.style.border = '1px solid rgba(74, 222, 128, 0.3)';
+    msg.style.color = '#4ade80';
+    msg.style.textAlign = 'center';
+
+    if (correctAnswers > 5) {
+        msg.innerHTML = "🌟 <b>You are on fire!</b> Keep up the great scientific thinking!";
+    } else if (correctAnswers > 0) {
+        msg.innerHTML = "👍 <b>Good start!</b> Try a few more questions to build your streak.";
+    } else {
+        msg.innerHTML = "👋 <b>Welcome!</b> Start a topic to see your stats grow.";
+    }
+    overlay.appendChild(msg);
+
+    // Simple List of recent activity
+    const listHeader = document.createElement('h3');
+    listHeader.innerText = "Recent Activity";
+    listHeader.style.color = "#fff";
+    listHeader.style.maxWidth = '800px';
+    listHeader.style.margin = '0 auto 1rem auto';
+    overlay.appendChild(listHeader);
+
+    const list = document.createElement('div');
+    list.style.maxWidth = '800px';
+    list.style.margin = '0 auto';
+
+    logs.slice(0, 5).forEach(log => {
+        const item = document.createElement('div');
+        item.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+        item.style.padding = '10px 0';
+        item.style.color = '#ccc';
+        let icon = '🔹';
+        if (log.action === 'question_correct') icon = '✅';
+        if (log.action === 'simulation_open') icon = '🧪';
+
+        let desc = log.action;
+        if (log.details.topic) desc = `Mastered: ${log.details.topic}`;
+        if (log.details.simulation) desc = `Opened: ${log.details.simulation}`;
+
+        item.innerHTML = `${icon} ${desc} <span style="font-size:0.8rem; opacity:0.5; float:right;">Recent</span>`;
+        list.appendChild(item);
+    });
+    overlay.appendChild(list);
+
+    document.body.appendChild(overlay);
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

@@ -100,6 +100,44 @@ class FirebaseManager {
         }
     }
 
+    // --- ACTIVITY LOG features ---
+
+    // Save an activity log (e.g., Question Correct, Simulation Opened)
+    async saveActivityLog(username, action, details) {
+        if (!this.isReady) return false;
+        try {
+            await this.db.collection("students").doc(username).collection("activity_logs").add({
+                action: action, // 'question_correct', 'simulation_open', 'login'
+                details: details, // { topic: 'Ecosystems', difficulty: 'Medium' }
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log("✅ Activity Logged:", action);
+            return true;
+        } catch (e) {
+            console.error("Activity Log Error:", e);
+            return false;
+        }
+    }
+
+    // Get activity logs for the last N days
+    async getActivityLogs(username, days = 7) {
+        if (!this.isReady) return [];
+        try {
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - days);
+
+            const snapshot = await this.db.collection("students").doc(username).collection("activity_logs")
+                .where("timestamp", ">=", startDate)
+                .orderBy("timestamp", "desc")
+                .get();
+
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e) {
+            console.error("Activity Load Error:", e);
+            return [];
+        }
+    }
+
     // Login a student
     async loginStudent(username, password) {
         if (!this.isReady) return null;
