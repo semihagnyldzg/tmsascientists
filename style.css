@@ -129,13 +129,13 @@ header {
   /* For positioning logout */
 }
 
-/* Fixed Logout Button */
+/* Fixed Logout Button (Now inside a flex container) */
 .fixed-logout-btn {
-  position: fixed;
-  top: 10px;
-  right: 10px;
+  /* position: fixed;  <-- Removed, handled by parent container */
+  /* top: 10px; */
+  /* right: 10px; */
   z-index: 9999;
-  /* Ensure it's on top of everything */
+  
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: #fca5a5;
