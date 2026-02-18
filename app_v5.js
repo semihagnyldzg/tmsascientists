@@ -1201,6 +1201,7 @@ window.handleSignUp = async function () {
 // --- INITIALIZATION ---
 
 const initApp = () => {
+    console.log("🚀 initApp Started");
     const robotEl = document.querySelector('.avatar-img');
 
     // Login Elements
@@ -1209,10 +1210,36 @@ const initApp = () => {
     const loginBtn = document.getElementById('login-btn');
     const loginError = document.getElementById('login-error');
 
+    if (loginBtn) {
+        console.log("✅ Login Button Found");
+        loginBtn.onclick = function () {
+            console.log("🖱️ Login Button Clicked");
+            window.checkLogin();
+        };
+    } else {
+        console.error("❌ Login Button NOT Found");
+    }
+
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') window.checkLogin();
+        });
+    }
+
     window.checkLogin = async function () {
-        // Data Check inside login
+        console.log("🔍 checkLogin Called");
+
+        // Data Check inside login with RETRY
         if (!window.pedagogyData || window.pedagogyData.grades.length === 0) {
-            alert("⚠️ Content is still loading... Please wait a moment.");
+            console.warn("⚠️ Pedagogy Data missing during login check. Retrying load...");
+
+            // Attempt to force reload if loader.js didn't finish? 
+            // Or just alert user
+            if (typeof loadPedagogyData === 'function') {
+                loadPedagogyData(); // Try to kick it
+            }
+
+            alert("⚠️ Content is still loading... Please wait 5 seconds and try again.");
             return;
         }
 
