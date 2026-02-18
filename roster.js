@@ -9,6 +9,7 @@ window.studentRoster = [
     { username: "mehmet", password: "123", name: "Mehmet" },
     { username: "zeynep", password: "123", name: "Zeynep" },
     { username: "semiha.yildiz", password: "123", name: "Semiha Yildiz" },
+    { username: "bryan.setser", password: "123", name: "Bryan Setser" },
     { username: "ahmet", password: "123", name: "Ahmet" },
     // Add more students here
 ];

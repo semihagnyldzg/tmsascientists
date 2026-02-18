@@ -408,6 +408,8 @@ function renderStrands(overrideSpeech = null) {
             if (s.title.includes('Force') || s.code.includes('P.5.1')) simType = 'forces';
             if (s.title.includes('Matter') || s.code.includes('PS.5.1')) simType = 'matter';
             if (s.title.includes('Genetics') || s.title.includes('Inherited') || s.code.includes('LS.5.3') || s.code.includes('LS.8.3')) simType = 'genetics';
+            if (s.title.includes('Disease') || s.code.includes('LS.8.1')) simType = 'microbio';
+            if (s.title.includes('Earth History') || s.code.includes('ESS.8.1')) simType = 'earth_history';
 
             // Note: We show the link for EVERY strands/standard now.
             if (simType) {
@@ -1127,7 +1129,7 @@ window.handleSignUp = function () {
     const school = schoolInput.value;
 
     if (!name || !surname || !school) {
-        alert("Lütfen tüm alanları doldurun! 📝 (Please fill all fields)");
+        alert("Please fill in all fields! 📝");
         return;
     }
 
@@ -1171,7 +1173,7 @@ window.handleSignUp = function () {
     currentCustom.push(newUser);
     localStorage.setItem('tmsa_custom_students', JSON.stringify(currentCustom));
 
-    alert(`✅ Kayıt Başarılı! (Registration Complete)\n\nKullanıcı Adın: ${username}\nŞifre: 123`);
+    alert(`✅ Registration Complete!\n\nUsername: ${username}\nPassword: 123`);
 
     // Auto Login
     state.currentUser = newUser;
