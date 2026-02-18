@@ -1201,13 +1201,6 @@ window.handleSignUp = async function () {
 // --- INITIALIZATION ---
 
 const initApp = () => {
-    // Check if data is ready
-    if (!window.pedagogyData || window.pedagogyData.grades.length === 0) {
-        console.log("Waiting for data...");
-        document.addEventListener('pedagogyDataReady', initApp);
-        return;
-    }
-
     const robotEl = document.querySelector('.avatar-img');
 
     // Login Elements
@@ -1217,10 +1210,18 @@ const initApp = () => {
     const loginError = document.getElementById('login-error');
 
     window.checkLogin = async function () {
+        // Data Check inside login
+        if (!window.pedagogyData || window.pedagogyData.grades.length === 0) {
+            alert("⚠️ Content is still loading... Please wait a moment.");
+            return;
+        }
+
         const user = usernameInput ? usernameInput.value.trim().toLowerCase() : "";
         const pass = passwordInput ? passwordInput.value.trim() : "";
 
         loginBtn.innerText = "Checking... ⏳";
+        // ... rest of logic
+
 
         let foundUser = null;
 
