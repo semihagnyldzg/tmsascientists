@@ -400,8 +400,8 @@ function renderStrands(overrideSpeech = null) {
                 list.appendChild(item);
             });
 
-            // --- Interactive Simulation (As a topic item) ---
-            let simType = 'generic'; // Default to generic for ALL standards
+            // --- Interactive Simulation / Literacy Activity ---
+            let simType = 'generic'; // Default
 
             // Specific overrides
             if (s.title.includes('Weather') || s.code.includes('ESS.5.1') || s.code.includes('E.1')) simType = 'weather';
@@ -413,20 +413,31 @@ function renderStrands(overrideSpeech = null) {
             if (s.title.includes('Ecosystems') || s.code.includes('LS.5.2') || s.code.includes('LS.8.2')) simType = 'ecosystems';
             if (s.title.includes('Hydrosphere') || s.code.includes('ESS.8.2') || s.code.includes('ESS.8.3')) simType = 'hydrosphere';
 
-            // Note: We show the link for EVERY strands/standard now.
-            if (simType) {
+            // SciELA / Literacy Override
+            const isLiteracy = state.currentGrade.id === 'SciELA' || s.title.includes('Vocabulary') || s.title.includes('Literacy');
+
+            if (simType || isLiteracy) {
                 const simItem = document.createElement('li');
                 simItem.className = 'topic-item';
-                simItem.innerHTML = '🧪 <b>Interactive Simulation</b>';
-                simItem.style.background = 'rgba(59, 130, 246, 0.1)';
-                simItem.style.border = '1px solid rgba(59, 130, 246, 0.3)';
-                simItem.style.color = '#60a5fa';
+
+                if (isLiteracy) {
+                    simItem.innerHTML = '🧩 <b>Science & Literacy Skills</b>';
+                    simItem.style.background = 'rgba(16, 185, 129, 0.1)';
+                    simItem.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+                    simItem.style.color = '#34d399';
+                } else {
+                    simItem.innerHTML = '🧪 <b>Interactive Simulation</b>';
+                    simItem.style.background = 'rgba(59, 130, 246, 0.1)';
+                    simItem.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+                    simItem.style.color = '#60a5fa';
+                }
 
                 simItem.onclick = () => {
                     if (typeof SimManager !== 'undefined') {
-                        SimManager.open(simType, s.title);
+                        // pass 'literacy' type if it is literacy, else simType
+                        SimManager.open(isLiteracy ? 'literacy' : simType, s.title);
                     } else {
-                        alert("Simulation module loading...");
+                        alert("Module module loading...");
                     }
                 };
                 list.appendChild(simItem);

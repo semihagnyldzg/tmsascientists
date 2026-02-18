@@ -59,6 +59,9 @@ const SimManager = {
         } else if (type === 'ecosystems') {
             EcosystemsLab.render(container);
             this.currentLab = EcosystemsLab;
+        } else if (type === 'literacy') {
+            GenericLab.render(container); // Use Generic Lab for Literacy for now
+            this.currentLab = GenericLab;
         } else if (type === 'hydrosphere') {
             HydrosphereLab.render(container);
             this.currentLab = HydrosphereLab;
