@@ -56,6 +56,12 @@ const SimManager = {
         } else if (type === 'earth_history') {
             EarthHistoryLab.render(container);
             this.currentLab = EarthHistoryLab;
+        } else if (type === 'ecosystems') {
+            EcosystemsLab.render(container);
+            this.currentLab = EcosystemsLab;
+        } else if (type === 'hydrosphere') {
+            HydrosphereLab.render(container);
+            this.currentLab = HydrosphereLab;
         } else {
             // Default to Generic
             GenericLab.render(container, topic);
@@ -968,7 +974,357 @@ const EarthHistoryLab = {
     stop() { }
 };
 
-/* --- 7. Generic Lab (Placeholder) --- */
+/* --- 7. Ecosystems Lab (Food Web) --- */
+const EcosystemsLab = {
+    state: {
+        connections: [], // [{from: 'grass', to: 'rabbit'}]
+        score: 0
+    },
+    container: null,
+
+    render(container) {
+        this.container = container;
+        this.state.connections = [];
+        this.state.score = 0;
+        this.renderUI();
+    },
+
+    renderUI() {
+        this.container.innerHTML = `
+            <div class="sim-header">
+                <h2>🕸️ Ecosystems: Food Web Balance</h2>
+                <p>Connect the organisms to create a balanced food web! (Click Producer -> Click Consumer)</p>
+            </div>
+            
+            <div style="display: flex; gap: 2rem; height: 65vh; padding: 1rem;">
+                
+                <!-- Canvas Area -->
+                <div id="eco-canvas" style="flex: 2; position: relative; background: #ecfccb; border: 4px solid #84cc16; border-radius: 12px; overflow: hidden;">
+                    <!-- Organisms placed absolutely -->
+                    <div id="org-sun" class="eco-node" onclick="EcosystemsLab.clickNode('sun')" style="top: 20px; left: 20px; background: #fde047;">☀️ Sun</div>
+                    
+                    <div id="org-grass" class="eco-node" onclick="EcosystemsLab.clickNode('grass')" style="top: 150px; left: 50px; background: #bef264;">🌿 Grass</div>
+                    <div id="org-tree" class="eco-node" onclick="EcosystemsLab.clickNode('tree')" style="top: 100px; left: 150px; background: #22c55e;">🌳 Tree</div>
+                    
+                    <div id="org-rabbit" class="eco-node" onclick="EcosystemsLab.clickNode('rabbit')" style="top: 250px; left: 250px; background: #e5e7eb;">🐇 Rabbit</div>
+                    <div id="org-deer" class="eco-node" onclick="EcosystemsLab.clickNode('deer')" style="top: 180px; left: 350px; background: #b45309; color: white;">🦌 Deer</div>
+                    
+                    <div id="org-wolf" class="eco-node" onclick="EcosystemsLab.clickNode('wolf')" style="top: 350px; left: 450px; background: #475569; color: white;">🐺 Wolf</div>
+                    
+                    <div id="org-fungi" class="eco-node" onclick="EcosystemsLab.clickNode('fungi')" style="top: 400px; left: 100px; background: #78350f; color: white;">🍄 Fungi</div>
+
+                    <!-- SVG Lines Layer -->
+                    <svg id="eco-lines" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 0;"></svg>
+                </div>
+
+                <!-- Info Panel -->
+                <div style="flex: 1; background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <h3>🔗 Connections</h3>
+                    <div id="connection-list" style="height: 200px; overflow-y: auto; background: #f8fafc; padding: 5px; margin-bottom: 10px; border: 1px solid #cbd5e1;">
+                        <p style="color: #94a3b8; font-size: 0.8rem;">No connections yet.</p>
+                    </div>
+
+                    <div id="eco-feedback" style="padding: 1rem; background: #f0f9ff; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1rem;">
+                        Select a source (Producer), then a target (Consumer).
+                    </div>
+                    
+                    <button onclick="EcosystemsLab.checkBalance()" class="sim-btn" style="width: 100%; background: #22c55e; margin-bottom: 5px;">✅ Check Balance</button>
+                    <button onclick="EcosystemsLab.reset()" class="sim-btn" style="width: 100%; background: #ef4444;">↺ Reset Web</button>
+                </div>
+            </div>
+            
+            <style>
+                .eco-node {
+                    position: absolute;
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    cursor: pointer;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+                    z-index: 2;
+                    transition: transform 0.2s;
+                    border: 2px solid white;
+                }
+                .eco-node:hover { transform: scale(1.1); }
+                .eco-node.selected { border: 4px solid #3b82f6; transform: scale(1.1); }
+            </style>
+        `;
+    },
+
+    selectedNode: null,
+
+    clickNode(id) {
+        const el = document.getElementById('org-' + id);
+
+        if (!this.selectedNode) {
+            // Select Source
+            this.selectedNode = id;
+            el.classList.add('selected');
+            document.getElementById('eco-feedback').innerHTML = `Selected <b>${id}</b>. Now click who eats it (or gets energy from it).`;
+        } else {
+            // Select Target
+            if (this.selectedNode === id) {
+                // Deselect
+                this.selectedNode = null;
+                el.classList.remove('selected');
+                document.getElementById('eco-feedback').innerHTML = "Selection cancelled.";
+                return;
+            }
+
+            this.addConnection(this.selectedNode, id);
+
+            // Cleanup UI
+            document.getElementById('org-' + this.selectedNode).classList.remove('selected');
+            this.selectedNode = null;
+        }
+    },
+
+    addConnection(from, to) {
+        // Check duplicate
+        if (this.state.connections.find(c => c.from === from && c.to === to)) {
+            document.getElementById('eco-feedback').innerHTML = "❌ Connection already exists.";
+            return;
+        }
+
+        this.state.connections.push({ from, to });
+        this.renderLines();
+        this.updateList();
+        document.getElementById('eco-feedback').innerHTML = `🔗 Connected: <b>${from}</b> ➔ <b>${to}</b>`;
+    },
+
+    renderLines() {
+        const svg = document.getElementById('eco-lines');
+        svg.innerHTML = ''; // Clear
+
+        this.state.connections.forEach(c => {
+            const el1 = document.getElementById('org-' + c.from);
+            const el2 = document.getElementById('org-' + c.to);
+
+            // Get centers
+            const rect1 = el1.getBoundingClientRect();
+            const rect2 = el2.getBoundingClientRect();
+            const parent = document.getElementById('eco-canvas').getBoundingClientRect();
+
+            const x1 = rect1.left + rect1.width / 2 - parent.left;
+            const y1 = rect1.top + rect1.height / 2 - parent.top;
+            const x2 = rect2.left + rect2.width / 2 - parent.left;
+            const y2 = rect2.top + rect2.height / 2 - parent.top;
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.setAttribute('stroke', '#475569');
+            line.setAttribute('stroke-width', '3');
+            line.setAttribute('marker-end', 'url(#arrow)');
+
+            svg.appendChild(line);
+        });
+
+        // Add Arrow Marker
+        if (!document.getElementById('arrow-marker-def')) {
+            svg.innerHTML += `
+                <defs id="arrow-marker-def">
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="25" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#475569" />
+                    </marker>
+                </defs>
+            `;
+        }
+    },
+
+    updateList() {
+        const list = document.getElementById('connection-list');
+        list.innerHTML = this.state.connections.map(c =>
+            `<div style="padding: 2px; border-bottom: 1px solid #eee;">${c.from} ➔ ${c.to}</div>`
+        ).join('');
+    },
+
+    checkBalance() {
+        // Simple logic for 5th grade
+        // Correct relations:
+        // Sun -> Grass, Sun -> Tree
+        // Grass -> Rabbit, Grass -> Deer
+        // Tree -> Deer
+        // Rabbit -> Wolf, Deer -> Wolf
+        // Wolf -> Fungi, Tree -> Fungi (Dead), etc. (Simplified)
+
+        const correctMap = [
+            'sun-grass', 'sun-tree',
+            'grass-rabbit', 'grass-deer',
+            'tree-deer',
+            'rabbit-wolf', 'deer-wolf'
+        ];
+
+        let correctCount = 0;
+        this.state.connections.forEach(c => {
+            if (correctMap.includes(`${c.from}-${c.to}`)) correctCount++;
+        });
+
+        const fb = document.getElementById('eco-feedback');
+        if (correctCount >= 5) {
+            fb.innerHTML = `<span style="color:green; font-weight:bold;">Example Ecosystem Stable!</span><br>Good energy flow found.`;
+            fb.style.background = "#dcfce7";
+        } else {
+            fb.innerHTML = `Ecosystem Unstable. Needs more energy connections!<br>Hint: Start from the Sun.`;
+            fb.style.background = "#fee2e2";
+        }
+    },
+
+    reset() {
+        this.render(this.container);
+    },
+
+    start() { },
+    stop() { }
+};
+
+/* --- 8. Hydrosphere Lab (Water Quality) --- */
+const HydrosphereLab = {
+    state: {
+        sample: null, // 'ocean', 'river', 'tap'
+        tool: null, // 'ph_strip', 'oxygen_meter', 'nitrate_test'
+        results: {}
+    },
+    container: null,
+
+    render(container) {
+        this.container = container;
+        this.state = { sample: null, tool: null, results: {} };
+        this.renderUI();
+    },
+
+    renderUI() {
+        this.container.innerHTML = `
+            <div class="sim-header">
+                <h2>🌊 Hydrosphere: Water Quality Testing</h2>
+                <p>Select a water source and test its health parameters!</p>
+            </div>
+            
+            <div style="display: flex; gap: 2rem; height: 65vh; padding: 1rem;">
+                
+                <!-- Samples -->
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                    <h3>1. Select Water Source</h3>
+                    
+                    <div onclick="HydrosphereLab.selectSample('ocean')" class="sim-card ${this.state.sample === 'ocean' ? 'selected' : ''}" style="cursor: pointer; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        🌊 <b>Ocean Water</b>
+                        <div style="font-size: 0.8rem; color: #64748b;">(Atlantic Coast)</div>
+                    </div>
+                    
+                    <div onclick="HydrosphereLab.selectSample('river')" class="sim-card ${this.state.sample === 'river' ? 'selected' : ''}" style="cursor: pointer; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        🏞️ <b>River Water</b>
+                        <div style="font-size: 0.8rem; color: #64748b;">(Near Factory)</div>
+                    </div>
+                    
+                    <div onclick="HydrosphereLab.selectSample('tap')" class="sim-card ${this.state.sample === 'tap' ? 'selected' : ''}" style="cursor: pointer; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        🚰 <b>Tap Water</b>
+                        <div style="font-size: 0.8rem; color: #64748b;">(School Fountain)</div>
+                    </div>
+                </div>
+
+                <!-- Testing Station -->
+                <div style="flex: 2; background: #f1f5f9; border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 4px solid #cbd5e1;">
+                    <div id="beaker" style="width: 150px; height: 200px; border: 4px solid #475569; border-top: none; background: linear-gradient(to top, ${this.getWaterColor()} 80%, transparent 80%); border-radius: 0 0 20px 20px; position: relative; margin-bottom: 2rem; transition: background 0.5s;">
+                        <span style="position: absolute; bottom: 10px; width: 100%; text-align: center; color: rgba(255,255,255,0.7); font-weight: bold;">
+                            ${this.state.sample ? this.state.sample.toUpperCase() : 'EMPTY'}
+                        </span>
+                    </div>
+
+                    <h3>2. Use a Test Tool</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="HydrosphereLab.test('ph')" class="sim-btn" ${!this.state.sample ? 'disabled' : ''} style="background: #f472b6;">🧪 pH Strip</button>
+                        <button onclick="HydrosphereLab.test('do')" class="sim-btn" ${!this.state.sample ? 'disabled' : ''} style="background: #38bdf8;">🫧 Oxygen Meter</button>
+                        <button onclick="HydrosphereLab.test('nitrate')" class="sim-btn" ${!this.state.sample ? 'disabled' : ''} style="background: #facc15;">🚜 Nitrate Test</button>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div style="flex: 1; background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <h3>📊 Lab Report</h3>
+                    <div id="hydro-report">
+                        ${this.renderReport()}
+                    </div>
+                    <button onclick="HydrosphereLab.analyze()" class="sim-btn" style="margin-top: 2rem; width: 100%; background: #3b82f6;">🧠 Analyze Health</button>
+                </div>
+            </div>
+            
+            <style>
+                .sim-card.selected { border-color: #3b82f6 !important; background: #eff6ff; }
+            </style>
+        `;
+    },
+
+    getWaterColor() {
+        if (!this.state.sample) return 'transparent';
+        if (this.state.sample === 'ocean') return '#0ea5e9'; // Blue
+        if (this.state.sample === 'river') return '#94a3b8'; // Murky
+        if (this.state.sample === 'tap') return '#e0f2fe'; // Clear
+        return 'transparent';
+    },
+
+    selectSample(s) {
+        this.state.sample = s;
+        this.state.results = {}; // Reset results on new sample
+        this.renderUI();
+    },
+
+    test(tool) {
+        if (!this.state.sample) return;
+
+        // Mock Data
+        let val = '';
+        if (this.state.sample === 'ocean') {
+            if (tool === 'ph') val = '8.1 (Basic)';
+            if (tool === 'do') val = '7.5 mg/L (Good)';
+            if (tool === 'nitrate') val = '0.5 ppm (Low)';
+        }
+        else if (this.state.sample === 'river') {
+            if (tool === 'ph') val = '6.2 (Acidic)';
+            if (tool === 'do') val = '3.0 mg/L (Critical)';
+            if (tool === 'nitrate') val = '15.0 ppm (High - Runoff)';
+        }
+        else if (this.state.sample === 'tap') {
+            if (tool === 'ph') val = '7.0 (Neutral)';
+            if (tool === 'do') val = '9.0 mg/L (Excellent)';
+            if (tool === 'nitrate') val = '0.0 ppm (None)';
+        }
+
+        this.state.results[tool] = val;
+        this.renderUI();
+    },
+
+    renderReport() {
+        if (Object.keys(this.state.results).length === 0) return '<p style="color:#94a3b8;">No tests run yet.</p>';
+
+        let html = '<ul style="padding-left: 20px;">';
+        if (this.state.results.ph) html += `<li><b>pH:</b> ${this.state.results.ph}</li>`;
+        if (this.state.results.do) html += `<li><b>Dissolved O2:</b> ${this.state.results.do}</li>`;
+        if (this.state.results.nitrate) html += `<li><b>Nitrates:</b> ${this.state.results.nitrate}</li>`;
+        html += '</ul>';
+        return html;
+    },
+
+    analyze() {
+        if (!this.state.sample) return;
+        let msg = "";
+        if (this.state.sample === 'ocean') msg = "The ocean water is healthy! pH is stable and oxygen is good for marine life.";
+        if (this.state.sample === 'river') msg = "⚠️ DANGER: This river is polluted! Low oxygen and high nitrates suggest fertilizer runoff and eutrophication.";
+        if (this.state.sample === 'tap') msg = "Safe to drink! Neutral pH and no contaminants found.";
+
+        alert("🔬 Analysis Result:\n\n" + msg);
+    },
+
+    start() { },
+    stop() { }
+};
+
+/* --- 6. Generic Lab (Placeholder) --- */
 const GenericLab = {
     render(container, topic) {
         container.innerHTML = `

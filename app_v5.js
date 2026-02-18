@@ -410,6 +410,8 @@ function renderStrands(overrideSpeech = null) {
             if (s.title.includes('Genetics') || s.title.includes('Inherited') || s.code.includes('LS.5.3') || s.code.includes('LS.8.3')) simType = 'genetics';
             if (s.title.includes('Disease') || s.code.includes('LS.8.1')) simType = 'microbio';
             if (s.title.includes('Earth History') || s.code.includes('ESS.8.1')) simType = 'earth_history';
+            if (s.title.includes('Ecosystems') || s.code.includes('LS.5.2') || s.code.includes('LS.8.2')) simType = 'ecosystems';
+            if (s.title.includes('Hydrosphere') || s.code.includes('ESS.8.2') || s.code.includes('ESS.8.3')) simType = 'hydrosphere';
 
             // Note: We show the link for EVERY strands/standard now.
             if (simType) {
