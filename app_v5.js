@@ -1439,8 +1439,7 @@ const initApp = () => {
     state.voices = window.speechSynthesis.getVoices();
 };
 
-state.voices = window.speechSynthesis.getVoices();
-};
+
 
 // --- JOURNAL UI ---
 function renderJournal() {
