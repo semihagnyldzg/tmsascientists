@@ -1107,6 +1107,8 @@ async function chatWithAI(text, context) {
 
 // --- SIGN UP LOGIC ---
 
+// --- SIGN UP LOGIC (UPDATED FOR FIREBASE) ---
+
 window.toggleSignUp = function () {
     const loginSec = document.getElementById('login-section');
     const signupSec = document.getElementById('signup-section');
@@ -1121,7 +1123,7 @@ window.toggleSignUp = function () {
     }
 };
 
-window.handleSignUp = function () {
+window.handleSignUp = async function () {
     const nameInput = document.getElementById('signup-name');
     const surnameInput = document.getElementById('signup-surname');
     const schoolInput = document.getElementById('signup-school');
@@ -1141,79 +1143,37 @@ window.handleSignUp = function () {
         .replace(/[^a-z0-9.]/g, '')
         .replace(/\s+/g, '');
 
-    console.log(`[Security Check] Attempting to register: '${baseUsername}'`);
-
-    // --- SECURITY CHECK REMOVED ---
-    // Open Sign Up Mode
-
-
-    let username = baseUsername;
-
-    // Check for duplicates (though now only one person can enter, this handles re-registration if cleared)
-    const currentCustom = JSON.parse(localStorage.getItem('tmsa_custom_students') || '[]');
-    let counter = 2;
-    while (currentCustom.find(u => u.username === username)) {
-        username = `${baseUsername}${counter}`;
-        counter++;
-    }
-
     const password = "123"; // Default simple password
 
     const newUser = {
-        username: username,
+        username: baseUsername,
         password: password,
         name: `${name} ${surname}`,
-        school: school,
-        isCustom: true
+        school: school
     };
 
-    // Add to runtime
-    if (!window.studentRoster) window.studentRoster = [];
-    window.studentRoster.push(newUser);
+    // Try Cloud Registration first
+    if (window.fbManager && window.fbManager.isReady) {
+        const success = await window.fbManager.registerStudent(newUser);
+        if (!success) return; // User exists or error
+    } else {
+        alert("⚠️ Cloud Database Offline. Saving locally only.");
+        // Fallback to local (old logic simplified)
+        if (!window.studentRoster) window.studentRoster = [];
+        window.studentRoster.push(newUser);
+    }
 
-    // Persist
-    currentCustom.push(newUser);
-    localStorage.setItem('tmsa_custom_students', JSON.stringify(currentCustom));
-
-    alert(`✅ Registration Complete!\n\nUsername: ${username}\nPassword: 123`);
+    alert(`✅ Registration Complete!\n\nUsername: ${baseUsername}\nPassword: 123`);
 
     // Auto Login
     state.currentUser = newUser;
-    const loginOverlay = document.getElementById('login-overlay');
-    const startOverlay = document.getElementById('start-overlay');
-    const welcomeHeader = document.getElementById('welcome-header');
-
-    if (loginOverlay) loginOverlay.style.display = 'none';
-    if (startOverlay) startOverlay.style.display = 'flex';
-
-    if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${name}?`;
-    pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
-
-    console.log("Logged in new user:", newUser);
+    proceedToApp(newUser);
 };
 
 
 // --- INITIALIZATION ---
 
 const initApp = () => {
-    // Load Custom Students from LocalStorage
-    try {
-        const storedRoster = JSON.parse(localStorage.getItem('tmsa_custom_students') || '[]');
-        if (storedRoster.length > 0) {
-            if (!window.studentRoster) window.studentRoster = [];
-
-            // Avoid duplicates based on username
-            storedRoster.forEach(s => {
-                if (!window.studentRoster.find(existing => existing.username === s.username)) {
-                    window.studentRoster.push(s);
-                }
-            });
-            console.log("Loaded custom students:", storedRoster.length);
-        }
-    } catch (e) {
-        console.error("Error loading custom roster:", e);
-    }
-
     // Check if data is ready
     if (!window.pedagogyData || window.pedagogyData.grades.length === 0) {
         console.log("Waiting for data...");
@@ -1224,52 +1184,33 @@ const initApp = () => {
     const robotEl = document.querySelector('.avatar-img');
 
     // Login Elements
-    // Login Logic
-    const loginOverlay = document.getElementById('login-overlay');
     const usernameInput = document.getElementById('username-input');
     const passwordInput = document.getElementById('password-input');
     const loginBtn = document.getElementById('login-btn');
     const loginError = document.getElementById('login-error');
 
-    // Start Elements
-    const startOverlay = document.getElementById('start-overlay');
-    const welcomeHeader = document.getElementById('welcome-header');
-
-    window.checkLogin = function () {
+    window.checkLogin = async function () {
         const user = usernameInput ? usernameInput.value.trim().toLowerCase() : "";
         const pass = passwordInput ? passwordInput.value.trim() : "";
 
-        // Find user in roster (both default and custom)
-        const foundUser = window.studentRoster ? window.studentRoster.find(u => u.username === user && u.password === pass) : null;
+        loginBtn.innerText = "Checking... ⏳";
+
+        let foundUser = null;
+
+        // 1. Try Local Roster First (Static Roster like Bryan)
+        if (window.studentRoster) {
+            foundUser = window.studentRoster.find(u => u.username === user && u.password === pass);
+        }
+
+        // 2. Try Firebase Cloud (if not found in local)
+        if (!foundUser && window.fbManager && window.fbManager.isReady) {
+            foundUser = await window.fbManager.loginStudent(user, pass);
+        }
+
+        loginBtn.innerText = "Enter Lab 🧪";
 
         if (foundUser) {
-            // Success!
-            state.currentUser = foundUser;
-
-            if (loginOverlay) loginOverlay.style.display = 'none';
-            if (startOverlay) startOverlay.style.display = 'flex';
-            if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${foundUser.name.split(' ')[0]}?`;
-
-            // Reset pedagoy init message if needed
-            if (pedagogyData) {
-                pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams and literacy skills. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
-            }
-
-            const welcomeMsg = `Welcome Scientist ${foundUser.name}. Let's get ready!`;
-            speak(welcomeMsg);
-
-            // Show Fixed Logout Button
-            const fixedLogoutBtn = document.getElementById('fixed-logout-btn');
-            if (fixedLogoutBtn) {
-                fixedLogoutBtn.style.display = 'block';
-                fixedLogoutBtn.onclick = () => {
-                    if (confirm("Are you sure you want to log out?")) {
-                        window.speechSynthesis.cancel();
-                        window.location.reload();
-                    }
-                };
-            }
-
+            proceedToApp(foundUser);
         } else {
             // Fail
             if (loginError) {
@@ -1281,9 +1222,39 @@ const initApp = () => {
         }
     };
 
+    // Helper to transition UI after login
+    function proceedToApp(user) {
+        state.currentUser = user;
+        const loginOverlay = document.getElementById('login-overlay');
+        const startOverlay = document.getElementById('start-overlay');
+        const welcomeHeader = document.getElementById('welcome-header');
+
+        if (loginOverlay) loginOverlay.style.display = 'none';
+        if (startOverlay) startOverlay.style.display = 'flex';
+        if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${user.name.split(' ')[0]}?`;
+
+        pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams. You can speak your answers.`;
+
+        const welcomeMsg = `Welcome Scientist ${user.name}. Let's get ready!`;
+        speak(welcomeMsg);
+
+        // Show Fixed Logout Button
+        const fixedLogoutBtn = document.getElementById('fixed-logout-btn');
+        if (fixedLogoutBtn) {
+            fixedLogoutBtn.style.display = 'block';
+            fixedLogoutBtn.onclick = () => {
+                if (confirm("Are you sure you want to log out?")) {
+                    window.speechSynthesis.cancel();
+                    window.location.reload();
+                }
+            };
+        }
+    }
+
     window.handleInput = function (text) {
         if (!text) return;
         text = text.toLowerCase();
+        // ... (rest of handleInput remains same)
         console.log("Handling Input:", text, "Phase:", state.currentPhase);
 
         // Global Commands
