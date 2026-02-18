@@ -1314,10 +1314,23 @@ const initApp = () => {
             };
         }
         if (fixedStatsBtn) {
-            fixedStatsBtn.style.display = 'block';
+            console.log("Showing Stats Button");
+            fixedStatsBtn.style.setProperty('display', 'block', 'important');
             fixedStatsBtn.onclick = () => {
                 renderProgressReport();
             };
+        } else {
+            console.error("Stats Button NOT found in DOM");
+        }
+
+        if (fixedJournalBtn) {
+            console.log("Showing Journal Button");
+            fixedJournalBtn.style.setProperty('display', 'block', 'important');
+            fixedJournalBtn.onclick = () => {
+                renderJournal();
+            };
+        } else {
+            console.error("Journal Button NOT found in DOM");
         }
     }
 
