@@ -65,6 +65,41 @@ class FirebaseManager {
         }
     }
 
+    // --- JOURNAL FEATURES ---
+
+    // Save a journal entry
+    async saveJournalEntry(username, entry) {
+        if (!this.isReady) return false;
+        try {
+            // entry = { date: "...", title: "...", content: "...", mood: "..." }
+            await this.db.collection("students").doc(username).collection("journal").add({
+                ...entry,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log("✅ Journal Saved");
+            return true;
+        } catch (e) {
+            console.error("Journal Save Error:", e);
+            return false;
+        }
+    }
+
+    // Get journal entries
+    async getJournalEntries(username) {
+        if (!this.isReady) return [];
+        try {
+            const snapshot = await this.db.collection("students").doc(username).collection("journal")
+                .orderBy("timestamp", "desc")
+                .limit(20)
+                .get();
+
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e) {
+            console.error("Journal Load Error:", e);
+            return [];
+        }
+    }
+
     // Login a student
     async loginStudent(username, password) {
         if (!this.isReady) return null;

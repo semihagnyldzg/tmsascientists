@@ -11,7 +11,12 @@
 
 <body>
     <!-- Fixed Logout Button -->
-    <button id="fixed-logout-btn" class="fixed-logout-btn" style="display: none;">Logout 🚪</button>
+    <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; display: flex; gap: 10px;">
+        <button id="fixed-journal-btn" class="fixed-logout-btn"
+            style="display: none; background: rgba(99, 102, 241, 0.2); border-color: #818cf8; color: #a5b4fc;">📓
+            Journal</button>
+        <button id="fixed-logout-btn" class="fixed-logout-btn" style="display: none;">Logout 🚪</button>
+    </div>
 
     <!-- Scroll Indicator -->
     <div id="scroll-indicator" class="scroll-indicator" style="display: none;">

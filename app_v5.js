@@ -1244,13 +1244,15 @@ const initApp = () => {
         if (startOverlay) startOverlay.style.display = 'flex';
         if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${user.name.split(' ')[0]}?`;
 
-        pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams and literacy skills. You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
+        pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams and literacy skills. **Remember, I am here to help you think, not to think for you!** You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
 
         const welcomeMsg = `Welcome Scientist ${user.name}. Let's get ready!`;
         speak(welcomeMsg);
 
-        // Show Fixed Logout Button
+        // Show Fixed Logout Button & Journal Button
         const fixedLogoutBtn = document.getElementById('fixed-logout-btn');
+        const fixedJournalBtn = document.getElementById('fixed-journal-btn');
+
         if (fixedLogoutBtn) {
             fixedLogoutBtn.style.display = 'block';
             fixedLogoutBtn.onclick = () => {
@@ -1258,6 +1260,12 @@ const initApp = () => {
                     window.speechSynthesis.cancel();
                     window.location.reload();
                 }
+            };
+        }
+        if (fixedJournalBtn) {
+            fixedJournalBtn.style.display = 'block';
+            fixedJournalBtn.onclick = () => {
+                renderJournal();
             };
         }
     }
@@ -1379,5 +1387,138 @@ const initApp = () => {
     };
     state.voices = window.speechSynthesis.getVoices();
 };
+
+state.voices = window.speechSynthesis.getVoices();
+};
+
+// --- JOURNAL UI ---
+function renderJournal() {
+    // Hide other views
+    const container = document.querySelector('.container');
+    const existingOverlay = document.getElementById('journal-overlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'journal-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.background = 'rgba(15, 23, 42, 0.95)';
+    overlay.style.zIndex = '2000';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.padding = '2rem';
+    overlay.style.overflowY = 'auto';
+
+    const header = document.createElement('div');
+    header.style.display = 'flex';
+    header.style.justifyContent = 'space-between';
+    header.style.alignItems = 'center';
+    header.style.maxWidth = '800px';
+    header.style.margin = '0 auto 2rem auto';
+    header.style.width = '100%';
+
+    const title = document.createElement('h2');
+    title.innerHTML = `📓 Scientist's Log: ${state.currentUser.name}`;
+    title.style.color = '#fff';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close ❌';
+    closeBtn.className = 'option-btn';
+    closeBtn.onclick = () => overlay.remove();
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    overlay.appendChild(header);
+
+    // Content Wrapper
+    const content = document.createElement('div');
+    content.style.maxWidth = '800px';
+    content.style.width = '100%';
+    content.style.margin = '0 auto';
+    content.style.display = 'flex';
+    content.style.flexDirection = 'column';
+    content.style.gap = '2rem';
+
+    // New Entry Section
+    const newEntryDiv = document.createElement('div');
+    newEntryDiv.style.background = 'rgba(255,255,255,0.05)';
+    newEntryDiv.style.padding = '1.5rem';
+    newEntryDiv.style.borderRadius = '12px';
+    newEntryDiv.innerHTML = `
+        <h3 style="color:#a5b4fc; margin-bottom:1rem;">New Entry ✍️</h3>
+        <input type="text" id="journal-title" placeholder="Title (e.g., Ecosystems Reflection)" style="width:100%; padding:10px; margin-bottom:10px; background:#1e293b; color:white; border:1px solid #475569; border-radius:8px;">
+        <textarea id="journal-content" rows="4" placeholder="What did you understand deeply today? Where did you struggle?" style="width:100%; padding:10px; background:#1e293b; color:white; border:1px solid #475569; border-radius:8px; font-family:inherit;"></textarea>
+        <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+            <button id="save-journal-btn" class="option-btn" style="background:#4ade80; color:#0f172a;">Save to Cloud ☁️</button>
+        </div>
+    `;
+    content.appendChild(newEntryDiv);
+
+    // Past Entries Section
+    const historyDiv = document.createElement('div');
+    historyDiv.id = 'journal-history';
+    historyDiv.innerHTML = `<h3 style="color:#a5b4fc; margin-bottom:1rem;">Past Reflections 🕰️</h3><p>Loading...</p>`;
+    content.appendChild(historyDiv);
+
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+
+    // Bind Save
+    document.getElementById('save-journal-btn').onclick = async () => {
+        const titleVal = document.getElementById('journal-title').value;
+        const contentVal = document.getElementById('journal-content').value;
+        if (!titleVal || !contentVal) return alert("Please write something!");
+
+        if (window.fbManager) {
+            const success = await window.fbManager.saveJournalEntry(state.currentUser.username, {
+                date: new Date().toLocaleDateString(),
+                title: titleVal,
+                content: contentVal
+            });
+            if (success) {
+                alert("Saved!");
+                document.getElementById('journal-title').value = '';
+                document.getElementById('journal-content').value = '';
+                loadEntries();
+            }
+        }
+    };
+
+    // Load Entries
+    async function loadEntries() {
+        if (window.fbManager) {
+            const historyEl = document.getElementById('journal-history');
+            const entries = await window.fbManager.getJournalEntries(state.currentUser.username);
+
+            if (entries.length === 0) {
+                historyEl.innerHTML = `<h3 style="color:#a5b4fc; margin-bottom:1rem;">Past Reflections 🕰️</h3><p style="opacity:0.7;">No entries yet. Start writing!</p>`;
+                return;
+            }
+
+            historyEl.innerHTML = `<h3 style="color:#a5b4fc; margin-bottom:1rem;">Past Reflections 🕰️</h3>`;
+            entries.forEach(e => {
+                const card = document.createElement('div');
+                card.style.background = 'rgba(255,255,255,0.03)';
+                card.style.padding = '1rem';
+                card.style.marginBottom = '1rem';
+                card.style.borderRadius = '8px';
+                card.style.borderLeft = '3px solid #818cf8';
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                        <strong>${e.title}</strong>
+                        <span style="font-size:0.8rem; opacity:0.7;">${e.date}</span>
+                    </div>
+                    <p style="white-space:pre-wrap; opacity:0.9;">${e.content}</p>
+                `;
+                historyEl.appendChild(card);
+            });
+        }
+    }
+
+    loadEntries();
+}
 
 document.addEventListener('DOMContentLoaded', initApp);
