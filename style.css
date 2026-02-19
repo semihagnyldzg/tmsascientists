@@ -1036,14 +1036,80 @@ input[type=range] {
   color: #94a3b8;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .dashboard-grid {
-    gap: 1rem;
+/* --- UNIFIED DASHBOARD STYLES --- */
+.dashboard-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 1000px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dashboard-row {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.action-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.action-card:hover {
+  transform: translateY(-5px);
+  background: rgba(30, 41, 59, 0.9);
+  border-color: #4ade80;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.action-card .card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.action-card h3 {
+  font-size: 1.5rem;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.action-card p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .dashboard-row {
+    flex-direction: column;
+    align-items: center;
   }
 
-  .dashboard-card {
-    flex: 1;
-    min-width: 140px;
+  .action-card {
+    width: 100%;
+    max-width: 100%;
   }
 }

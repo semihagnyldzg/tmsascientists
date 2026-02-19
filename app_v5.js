@@ -1276,6 +1276,13 @@ const initApp = () => {
 
         const user = usernameInput ? usernameInput.value.trim().toLowerCase() : "";
         const pass = passwordInput ? passwordInput.value.trim() : "";
+        const gradeSelect = document.getElementById('login-grade-select');
+        const selectedGrade = gradeSelect ? gradeSelect.value : "";
+
+        if (user && pass && !selectedGrade) {
+            alert("Please select your grade level before entering.");
+            return;
+        }
 
         loginBtn.innerText = "Checking... ⏳";
         // ... rest of logic
@@ -1296,6 +1303,8 @@ const initApp = () => {
         loginBtn.innerText = "Enter Lab 🧪";
 
         if (foundUser) {
+            // Attach selected grade to user object
+            foundUser.grade = selectedGrade;
             proceedToApp(foundUser);
         } else {
             // Fail
@@ -1312,30 +1321,35 @@ const initApp = () => {
     function proceedToApp(user) {
         state.currentUser = user;
         const loginOverlay = document.getElementById('login-overlay');
-        const startOverlay = document.getElementById('start-overlay');
+        const mainDashboard = document.getElementById('main-dashboard');
         const welcomeHeader = document.getElementById('welcome-header');
 
         if (loginOverlay) loginOverlay.style.display = 'none';
-        if (startOverlay) startOverlay.style.display = 'flex';
+        if (mainDashboard) mainDashboard.style.display = 'flex'; // Show new dashboard
+
         if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${user.name.split(' ')[0]}?`;
 
-        pedagogyData.intro_message = `This platform is designed to help you practice for your EOG Science exams and literacy skills. **Remember, I am here to help you think, not to think for you!** You can speak your answers, or use 'Show Options' to see choices. If you need help, try the 'Decompose' button. You can also skip questions. Now, please select your grade to begin!`;
+        let introMsg = `Welcome Scientist ${user.name}. `;
 
-        const welcomeMsg = `Welcome Scientist ${user.name}. Let's get ready!`;
-        speak(welcomeMsg);
+        if (user.grade) {
+            introMsg += `I see you are in ${user.grade}th grade. Excellent! `;
+            // Pre-select grade in logic if possible, or just note it
+            const gradeObj = pedagogyData.grades.find(g => g.id === user.grade || g.title.includes(user.grade));
+            if (gradeObj) {
+                state.currentGrade = gradeObj;
+                state.currentPhase = 'grade_confirmed'; // Skip selection?
+                introMsg += `We are ready to explore ${gradeObj.title} topics. Click 'Start Session' to begin.`;
+            }
+        } else {
+            introMsg += "Please select your grade to begin!";
+        }
+
+        pedagogyData.intro_message = introMsg;
+        const welcomeSpeech = `Welcome Scientist ${user.name}. Let's get ready!`;
+        speak(welcomeSpeech);
 
         // Show Fixed Logout Button
         const fixedLogoutBtn = document.getElementById('fixed-logout-btn');
-        const dbGrid = document.getElementById('dashboard-grid');
-
-        // Ensure Dashboard is Visible & Positioned
-        if (dbGrid) {
-            console.log("✅ Forcefully showing Dashboard Grid and setting margin");
-            dbGrid.style.display = 'flex';
-            dbGrid.style.marginTop = '15vh'; // Force inline style 
-        } else {
-            console.error("❌ Dashboard Grid NOT found!");
-        }
         if (fixedLogoutBtn) {
             fixedLogoutBtn.style.display = 'block';
             fixedLogoutBtn.onclick = () => {
