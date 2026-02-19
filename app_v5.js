@@ -1470,7 +1470,51 @@ const initApp = () => {
         }
     };
 
-    if (loginBtn) loginBtn.onclick = window.checkLogin;
+
+    // --- GLOBAL UI HELPERS ---
+    window.toggleJournal = function () {
+        renderJournal();
+    };
+
+    window.toggleStats = function () {
+        renderProgressReport();
+    };
+
+    window.goBack = function () {
+        // 1. If overlays are open, close them
+        const journalOverlay = document.getElementById('journal-overlay');
+        const statsOverlay = document.getElementById('progress-overlay');
+        const quizOverlay = document.getElementById('quiz-container'); // If quiz is overlay? No, quiz is in controls.
+
+        if (journalOverlay) { journalOverlay.remove(); return; }
+        if (statsOverlay) { statsOverlay.remove(); return; }
+
+        // 2. If in Chat/Quiz mode, return to Dashboard
+        const db = document.getElementById('main-dashboard');
+        const controls = document.querySelector('.controls');
+        const chat = document.querySelector('.chat-area');
+        const backBtn = document.getElementById('global-back-btn');
+        const sidebar = document.getElementById('app-sidebar');
+        const scrollIndicator = document.getElementById('scroll-indicator');
+
+        // Stop speaking
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        state.isSpeaking = false;
+
+        // Show Dashboard
+        if (db) db.style.display = 'flex';
+
+        // Hide Chat Interface
+        if (controls) controls.style.display = 'none'; // Clear quiz/input
+        if (chat) chat.style.display = 'none'; // Hide chat
+        if (backBtn) backBtn.style.display = 'none'; // Hide back button on dashboard
+        if (sidebar) sidebar.style.display = 'none';
+        if (scrollIndicator) scrollIndicator.style.display = 'none';
+
+        // Reset State (Optional)
+        state.currentPhase = 'grade_confirmed';
+        speak("Returned to dashboard.");
+    };
     if (passwordInput) passwordInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') window.checkLogin();
     });

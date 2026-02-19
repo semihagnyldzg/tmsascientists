@@ -71,3 +71,7 @@ secrets.js
 
 # Local Netlify folder
 .netlify
+
+# Playwright artifacts
+test-results/
+playwright-report/
