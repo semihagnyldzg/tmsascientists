@@ -1280,129 +1280,11 @@ const initApp = () => {
         });
     }
 
-    window.checkLogin = async function () {
-        console.log("🔍 checkLogin Called");
 
-        // Data Check inside login with RETRY
-        if (!window.pedagogyData || window.pedagogyData.grades.length === 0) {
-            console.warn("⚠️ Pedagogy Data missing during login check. Retrying load...");
-
-            // Attempt to force reload if loader.js didn't finish? 
-            // Or just alert user
-            // The loadPedagogyData is now called at the start of initApp, so this block is mostly for a very rare race condition or error.
-            // if (typeof loadPedagogyData === 'function') {
-            //     loadPedagogyData(); // Try to kick it
-            // }
-
-            alert("⚠️ Content is still loading... Please wait 5 seconds and try again.");
-            return;
-        }
-
-        const user = usernameInput ? usernameInput.value.trim().toLowerCase() : "";
-        const pass = passwordInput ? passwordInput.value.trim() : "";
-        const gradeSelect = document.getElementById('login-grade-select');
-        const selectedGrade = gradeSelect ? gradeSelect.value : "";
-
-        console.log("Login Attempt:", { user, pass, selectedGrade });
-
-        if (!user || !pass) {
-            alert("Please enter both username and password.");
-            return;
-        }
-
-        if (!selectedGrade) {
-            alert("Please select your grade level before entering.");
-            gradeSelect.focus();
-            return;
-        }
-
-        if (loginBtn) loginBtn.innerText = "Checking... ⏳";
-        // ... rest of logic
-
-
-        let foundUser = null;
-
-        // 1. Try Local Roster First (Static Roster like Bryan)
-        if (window.studentRoster) {
-            foundUser = window.studentRoster.find(u => u.username === user && u.password === pass);
-        }
-
-        // 2. Try Firebase Cloud (if not found in local)
-        if (!foundUser && window.fbManager && window.fbManager.isReady) {
-            foundUser = await window.fbManager.loginStudent(user, pass);
-        }
-
-        loginBtn.innerText = "Enter Lab 🧪";
-
-        if (foundUser) {
-            // Attach selected grade to user object
-            foundUser.grade = selectedGrade;
-            proceedToApp(foundUser);
-        } else {
-            // Fail
-            if (loginError) {
-                loginError.style.display = 'block';
-                loginError.innerHTML = "🚫 <b>Access Denied</b><br>Incorrect Username or Password.";
-            }
-            alert("🔒 Access Denied\n\nPlease check your username and password.");
-            if (passwordInput) passwordInput.value = '';
-        }
-    };
 
     // Helper to transition UI after login
-    function proceedToApp(user) {
-        state.currentUser = user;
-        const loginOverlay = document.getElementById('login-overlay');
-        const mainDashboard = document.getElementById('main-dashboard');
-        const welcomeHeader = document.getElementById('welcome-header');
+    // Helper to transition UI after login
 
-        // Hide potential overlapping elements
-        const sidebar = document.getElementById('app-sidebar');
-        const chatArea = document.querySelector('.chat-area');
-        const controls = document.querySelector('.controls');
-        const scrollIndicator = document.getElementById('scroll-indicator');
-
-        if (loginOverlay) loginOverlay.style.display = 'none';
-        if (sidebar) sidebar.style.display = 'none';
-        if (chatArea) chatArea.style.display = 'none';
-        if (controls) controls.style.display = 'none';
-        if (scrollIndicator) scrollIndicator.style.display = 'none';
-
-        if (mainDashboard) mainDashboard.style.display = 'flex'; // Show new dashboard
-
-        if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${user.name.split(' ')[0]}?`;
-
-        let introMsg = '';
-
-        if (user.grade) {
-            introMsg += `I see you are in ${user.grade}th grade. Excellent! `;
-            // Pre-select grade in logic if possible, or just note it
-            const gradeObj = pedagogyData.grades.find(g => g.id === user.grade || g.title.includes(user.grade));
-            if (gradeObj) {
-                state.currentGrade = gradeObj;
-                state.currentPhase = 'grade_confirmed'; // Skip selection?
-                introMsg += `We are ready to explore ${gradeObj.title} topics. Click 'Start Session' to begin.`;
-            }
-        } else {
-            introMsg += "Please select your grade to begin!";
-        }
-
-        pedagogyData.intro_message = introMsg;
-        const welcomeSpeech = `Welcome Scientist ${user.name}. Let's get ready!`;
-        speak(welcomeSpeech);
-
-        // Show Fixed Logout Button
-        const fixedLogoutBtn = document.getElementById('fixed-logout-btn');
-        if (fixedLogoutBtn) {
-            fixedLogoutBtn.style.display = 'block';
-            fixedLogoutBtn.onclick = () => {
-                if (confirm("Are you sure you want to log out?")) {
-                    window.speechSynthesis.cancel();
-                    window.location.reload();
-                }
-            };
-        }
-    }
 
     window.handleInput = function (text) {
         if (!text) return;
@@ -1477,7 +1359,133 @@ const initApp = () => {
     };
 
 
-    // --- GLOBAL UI HELPERS ---
+    // --- GLOBAL HELPER FUNCTIONS ---
+    window.checkLogin = async function () {
+        console.log("🔍 checkLogin Called (Global)");
+
+        const usernameInput = document.getElementById('username-input');
+        const passwordInput = document.getElementById('password-input');
+        const loginBtn = document.getElementById('login-btn');
+        const loginError = document.getElementById('login-error');
+
+        // Data Check inside login with RETRY
+        if (!window.pedagogyData || window.pedagogyData.grades.length === 0) {
+            console.warn("⚠️ Pedagogy Data missing during login check. Retrying load...");
+            alert("⚠️ Content is still loading... Please wait 5 seconds and try again.");
+            return;
+        }
+
+        const user = usernameInput ? usernameInput.value.trim().toLowerCase() : "";
+        const pass = passwordInput ? passwordInput.value.trim() : "";
+        const gradeSelect = document.getElementById('login-grade-select');
+        const selectedGrade = gradeSelect ? gradeSelect.value : "";
+
+        console.log("Login Attempt:", { user, pass, selectedGrade });
+
+        if (!user || !pass) {
+            alert("Please enter both username and password.");
+            return;
+        }
+
+        if (!selectedGrade) {
+            alert("Please select your grade level before entering.");
+            gradeSelect.focus();
+            return;
+        }
+
+        if (loginBtn) loginBtn.innerText = "Checking... ⏳";
+
+        let foundUser = null;
+
+        // 1. Try Local Roster First (Static Roster like Bryan)
+        if (window.studentRoster) {
+            foundUser = window.studentRoster.find(u => u.username === user && u.password === pass);
+        }
+
+        // 2. Try Firebase Cloud (if not found in local)
+        if (!foundUser && window.fbManager && window.fbManager.isReady) {
+            foundUser = await window.fbManager.loginStudent(user, pass);
+        }
+
+        if (loginBtn) loginBtn.innerText = "Enter Lab 🧪";
+
+        if (foundUser) {
+            // Attach selected grade to user object
+            foundUser.grade = selectedGrade;
+            // Access proceedToApp via window if needed, or define it globally too.
+            // proceedToApp is likely still inside initApp closure? 
+            // Wait, proceedToApp was inside initApp. I need to move it out too or expose it.
+            if (window.proceedToApp) {
+                window.proceedToApp(foundUser);
+            } else {
+                console.error("proceedToApp not found!");
+                alert("Login successful but cannot start app. Please refresh.");
+            }
+        } else {
+            // Fail
+            if (loginError) {
+                loginError.style.display = 'block';
+                loginError.innerHTML = "🚫 <b>Access Denied</b><br>Incorrect Username or Password.";
+            }
+            alert("🔒 Access Denied\n\nPlease check your username and password.");
+            if (passwordInput) passwordInput.value = '';
+        }
+    };
+
+    // Helper to transition UI after login (Global)
+    window.proceedToApp = function (user) {
+        state.currentUser = user;
+        const loginOverlay = document.getElementById('login-overlay');
+        const mainDashboard = document.getElementById('main-dashboard');
+        const welcomeHeader = document.getElementById('welcome-header');
+
+        // Hide potential overlapping elements
+        const sidebar = document.getElementById('app-sidebar');
+        const chatArea = document.querySelector('.chat-area');
+        const controls = document.querySelector('.controls');
+        const scrollIndicator = document.getElementById('scroll-indicator');
+
+        if (loginOverlay) loginOverlay.style.display = 'none';
+        if (sidebar) sidebar.style.display = 'none';
+        if (chatArea) chatArea.style.display = 'none';
+        if (controls) controls.style.display = 'none';
+        if (scrollIndicator) scrollIndicator.style.display = 'none';
+
+        if (mainDashboard) mainDashboard.style.display = 'flex'; // Show new dashboard
+
+        if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${user.name.split(' ')[0]}?`;
+
+        let introMsg = '';
+
+        if (user.grade) {
+            introMsg += `I see you are in ${user.grade}th grade. Excellent! `;
+            const gradeObj = pedagogyData.grades.find(g => g.id === user.grade || g.title.includes(user.grade));
+            if (gradeObj) {
+                state.currentGrade = gradeObj;
+                state.currentPhase = 'grade_confirmed';
+                introMsg += `We are ready to explore ${gradeObj.title} topics. Click 'Start Session' to begin.`;
+            }
+        } else {
+            introMsg += "Please select your grade to begin!";
+        }
+
+        pedagogyData.intro_message = introMsg;
+        const welcomeSpeech = `Welcome Scientist ${user.name}. Let's get ready!`;
+        speak(welcomeSpeech);
+
+        // Show Fixed Logout Button
+        const fixedLogoutBtn = document.getElementById('fixed-logout-btn');
+        if (fixedLogoutBtn) {
+            fixedLogoutBtn.style.display = 'block';
+            fixedLogoutBtn.onclick = () => {
+                if (confirm("Are you sure you want to log out?")) {
+                    window.speechSynthesis.cancel();
+                    window.location.reload();
+                }
+            };
+        }
+    };
+
     window.toggleJournal = function () {
         renderJournal();
     };
