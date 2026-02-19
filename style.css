@@ -135,7 +135,7 @@ header {
   /* top: 10px; */
   /* right: 10px; */
   z-index: 9999;
-  
+
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: #fca5a5;
@@ -979,4 +979,71 @@ input[type=range] {
 .sim-status {
   font-weight: 500;
   color: #64748b;
+}
+
+/* --- Dashboard Grid (New UI) --- */
+.dashboard-grid {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 15vh !important;
+  /* Added space to push it down */
+  margin-bottom: 2rem;
+  width: 100%;
+  /* Ensure it wraps or scrolls if needed on very small screens, though flex-wrap handles it */
+  flex-wrap: wrap;
+}
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 1.5rem;
+  width: 160px;
+  /* Slightly wider */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-card:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.dashboard-card .card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+.dashboard-card .card-content h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.dashboard-card .card-content p {
+  margin: 0.2rem 0 0 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .dashboard-grid {
+    gap: 1rem;
+  }
+
+  .dashboard-card {
+    flex: 1;
+    min-width: 140px;
+  }
 }

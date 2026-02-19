@@ -230,6 +230,10 @@ window.startApp = function () {
     const chatArea = document.querySelector('.chat-area');
     if (chatArea) chatArea.classList.add('visible');
 
+    // Show Dashboard Grid
+    const dbGrid = document.getElementById('dashboard-grid');
+    if (dbGrid) dbGrid.style.display = 'flex';
+
     // Make Avatar Clickable to Stop Speech
     const avatar = document.querySelector('.avatar-img');
     if (avatar) {
@@ -251,6 +255,24 @@ window.startApp = function () {
 
     addMessage(welcomeMsg, 'sestin');
     speak(welcomeMsg, () => {
+        // CHECK FOR ACTIVE QUIZ
+        const activeQuiz = localStorage.getItem('tmsa_active_quiz');
+        if (activeQuiz) {
+            const quiz = JSON.parse(activeQuiz);
+            // Optional: Check if already taken? For now, just show it.
+            addMessage(`📢 <strong>Assignment Alert:</strong> Teacher has assigned a quiz: "${quiz.title}"`, 'sestin');
+
+            const btn = document.createElement('button');
+            btn.className = 'start-btn';
+            btn.style.background = '#f59e0b';
+            btn.style.marginTop = '1rem';
+            btn.innerHTML = '📝 Take Quiz Now';
+            btn.onclick = () => startStudentQuiz(quiz);
+            document.querySelector('.controls').appendChild(btn);
+
+            // Also add to Dashboard if not clicked immediately
+        }
+
         renderGrades();
     });
 
@@ -314,6 +336,10 @@ function renderGrades() {
     const grid = document.createElement('div');
     grid.className = 'options-grid';
 
+    // Show Dashboard Grid
+    const dbGrid = document.getElementById('dashboard-grid');
+    if (dbGrid) dbGrid.style.display = 'flex';
+
     pedagogyData.grades.forEach(g => {
         const btn = document.createElement('button');
         btn.className = 'option-btn';
@@ -337,6 +363,10 @@ function renderStrands(overrideSpeech = null) {
     state.currentPhase = 'topic_selection';
     const controlsEl = document.querySelector('.controls');
     controlsEl.innerHTML = '';
+
+    // Hide Dashboard Grid 
+    const dbGrid = document.getElementById('dashboard-grid');
+    if (dbGrid) dbGrid.style.display = 'none';
 
     // topBar definition removed as it is no longer needed for the back button structure
 
@@ -1235,9 +1265,10 @@ const initApp = () => {
 
             // Attempt to force reload if loader.js didn't finish? 
             // Or just alert user
-            if (typeof loadPedagogyData === 'function') {
-                loadPedagogyData(); // Try to kick it
-            }
+            // The loadPedagogyData is now called at the start of initApp, so this block is mostly for a very rare race condition or error.
+            // if (typeof loadPedagogyData === 'function') {
+            //     loadPedagogyData(); // Try to kick it
+            // }
 
             alert("⚠️ Content is still loading... Please wait 5 seconds and try again.");
             return;
@@ -1293,11 +1324,18 @@ const initApp = () => {
         const welcomeMsg = `Welcome Scientist ${user.name}. Let's get ready!`;
         speak(welcomeMsg);
 
-        // Show Fixed Logout Button & Journal Button & Stats
+        // Show Fixed Logout Button
         const fixedLogoutBtn = document.getElementById('fixed-logout-btn');
-        const fixedJournalBtn = document.getElementById('fixed-journal-btn');
-        const fixedStatsBtn = document.getElementById('fixed-stats-btn');
+        const dbGrid = document.getElementById('dashboard-grid');
 
+        // Ensure Dashboard is Visible & Positioned
+        if (dbGrid) {
+            console.log("✅ Forcefully showing Dashboard Grid and setting margin");
+            dbGrid.style.display = 'flex';
+            dbGrid.style.marginTop = '15vh'; // Force inline style 
+        } else {
+            console.error("❌ Dashboard Grid NOT found!");
+        }
         if (fixedLogoutBtn) {
             fixedLogoutBtn.style.display = 'block';
             fixedLogoutBtn.onclick = () => {
@@ -1306,31 +1344,6 @@ const initApp = () => {
                     window.location.reload();
                 }
             };
-        }
-        if (fixedJournalBtn) {
-            fixedJournalBtn.style.display = 'block';
-            fixedJournalBtn.onclick = () => {
-                renderJournal();
-            };
-        }
-        if (fixedStatsBtn) {
-            console.log("Showing Stats Button");
-            fixedStatsBtn.style.setProperty('display', 'block', 'important');
-            fixedStatsBtn.onclick = () => {
-                renderProgressReport();
-            };
-        } else {
-            console.error("Stats Button NOT found in DOM");
-        }
-
-        if (fixedJournalBtn) {
-            console.log("Showing Journal Button");
-            fixedJournalBtn.style.setProperty('display', 'block', 'important');
-            fixedJournalBtn.onclick = () => {
-                renderJournal();
-            };
-        } else {
-            console.error("Journal Button NOT found in DOM");
         }
     }
 
@@ -1708,17 +1721,20 @@ async function renderProgressReport() {
 
     // Simple List of recent activity
     const listHeader = document.createElement('h3');
-    listHeader.innerText = "Recent Activity";
+    listHeader.textContent = "Recent Activity";
+    listHeader.style.marginTop = "2rem";
     listHeader.style.color = "#fff";
-    listHeader.style.maxWidth = '800px';
-    listHeader.style.margin = '0 auto 1rem auto';
+    listHeader.style.textAlign = 'center';
     overlay.appendChild(listHeader);
 
     const list = document.createElement('div');
     list.style.maxWidth = '800px';
     list.style.margin = '0 auto';
 
-    logs.slice(0, 5).forEach(log => {
+    // Safe access to logs
+    const activityLogs = window.logs || [];
+
+    activityLogs.slice(0, 5).forEach(log => {
         const item = document.createElement('div');
         item.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
         item.style.padding = '10px 0';
@@ -1728,8 +1744,8 @@ async function renderProgressReport() {
         if (log.action === 'simulation_open') icon = '🧪';
 
         let desc = log.action;
-        if (log.details.topic) desc = `Mastered: ${log.details.topic}`;
-        if (log.details.simulation) desc = `Opened: ${log.details.simulation}`;
+        if (log.details && log.details.topic) desc = `Mastered: ${log.details.topic}`;
+        if (log.details && log.details.simulation) desc = `Opened: ${log.details.simulation}`;
 
         item.innerHTML = `${icon} ${desc} <span style="font-size:0.8rem; opacity:0.5; float:right;">Recent</span>`;
         list.appendChild(item);
@@ -1737,6 +1753,165 @@ async function renderProgressReport() {
     overlay.appendChild(list);
 
     document.body.appendChild(overlay);
-}
+};
+
+// --- STUDENT QUIZ LOGIC ---
+
+window.startStudentQuiz = function (quiz) {
+    state.currentPhase = 'quiz';
+    state.currentQuiz = quiz;
+    state.quizAnswers = {};
+
+    const ctrl = document.querySelector('.controls');
+    ctrl.innerHTML = '';
+
+    // Create Quiz Container
+    const quizContainer = document.createElement('div');
+    quizContainer.style.background = 'rgba(0,0,0,0.5)';
+    quizContainer.style.padding = '2rem';
+    quizContainer.style.borderRadius = '16px';
+    quizContainer.style.maxWidth = '800px';
+    quizContainer.style.margin = '0 auto';
+    quizContainer.style.marginTop = '2rem';
+
+    let html = `<h2 style="color:#f59e0b; margin-bottom: 2rem;">📝 ${quiz.title}</h2>`;
+
+    // Add Questions
+    quiz.questions.forEach((q, index) => {
+        html += `<div style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2rem;">`;
+        html += `<p style="font-size: 1.1rem; margin-bottom: 1rem;"><strong>${index + 1}. ${q.text}</strong></p>`;
+
+        if (q.type === 'MC') {
+            q.options.forEach(opt => {
+                html += `
+                    <label style="display: block; margin: 0.8rem 0; cursor: pointer; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                        <input type="radio" name="q${index}" value="${opt}" style="margin-right: 10px;"> ${opt}
+                    </label>
+                `;
+            });
+        } else {
+            html += `
+                <textarea id="q${index}" rows="4" style="width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; padding: 1rem; font-family: inherit;" placeholder="Type your answer here..."></textarea>
+            `;
+        }
+        html += `</div>`;
+    });
+
+    html += `<button onclick="submitStudentQuiz()" class="start-btn" style="background: #10b981; width: 100%; font-size: 1.2rem;">Submit Quiz ✅</button>`;
+
+    quizContainer.innerHTML = html;
+    ctrl.appendChild(quizContainer);
+
+    // Hide dashboard while taking quiz
+    const dbGrid = document.getElementById('dashboard-grid');
+    if (dbGrid) dbGrid.style.display = 'none';
+};
+
+window.submitStudentQuiz = function () {
+    const quiz = state.currentQuiz;
+    let score = 0;
+    let mcCount = 0;
+    let feedbackHTML = '<div style="text-align: left; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; max-height: 300px; overflow-y: auto;">';
+
+    // Collect Answers
+    const answers = [];
+
+    quiz.questions.forEach((q, index) => {
+        if (q.type === 'MC') {
+            mcCount++;
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const val = selected ? selected.value : null;
+            answers.push({ q: index, val: val, correct: val === q.correct });
+
+            if (val === q.correct) {
+                score++;
+                feedbackHTML += `<p style="color:#4ade80; margin-bottom: 0.5rem;">✅ Q${index + 1}: Correct!</p>`;
+            } else {
+                feedbackHTML += `<p style="color:#ef4444; margin-bottom: 0.5rem;">❌ Q${index + 1}: Incorrect. Answer: ${q.correct}<br><small style="color: #ccc;">${q.explanation}</small></p>`;
+            }
+        } else {
+            // OE - Just save
+            const val = document.getElementById(`q${index}`).value;
+            answers.push({ q: index, val: val, type: 'OE' });
+            feedbackHTML += `<p style="color:#f59e0b; margin-bottom: 0.5rem;">⏳ Q${index + 1}: Submitted for Teacher Review.</p>`;
+        }
+    });
+
+    feedbackHTML += '</div>';
+
+    const grade = mcCount > 0 ? Math.round((score / mcCount) * 100) : 0;
+
+    // Calculate final grade
+    const finalGrade = grade;
+
+    const ctrl = document.querySelector('.controls');
+    ctrl.innerHTML = `
+        <div style="text-align: center; background: rgba(0,0,0,0.6); padding: 2rem; border-radius: 16px; margin-top: 2rem;">
+            <h1 style="color:white; margin-bottom: 1rem;">Quiz Completed! 🏁</h1>
+            <div style="font-size: 4rem; color: ${finalGrade >= 70 ? '#4ade80' : '#ef4444'}; font-weight: 800; margin-bottom: 1rem;">${finalGrade}%</div>
+            <p style="color: #cbd5e1; margin-bottom: 2rem;">(Multiple Choice Score)</p>
+            
+            ${feedbackHTML}
+            
+            <button onclick="renderGrades()" class="start-btn" style="margin-top:2rem; background: #3b82f6;">Return to Dashboard</button>
+        </div>
+    `;
+
+    speak(`Quiz submitted! You got ${score} out of ${mcCount} on the multiple choice questions. I've sent your open-ended answers to your teacher.`);
+};
+
+document.addEventListener('DOMContentLoaded', initApp);
+
+
+window.submitStudentQuiz = function () {
+    const quiz = state.currentQuiz;
+    let score = 0;
+    let mcCount = 0;
+    let feedbackHTML = '<div style="text-align: left; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; max-height: 300px; overflow-y: auto;">';
+
+    // Collect Answers
+    const answers = [];
+
+    quiz.questions.forEach((q, index) => {
+        if (q.type === 'MC') {
+            mcCount++;
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const val = selected ? selected.value : null;
+            answers.push({ q: index, val: val, correct: val === q.correct });
+
+            if (val === q.correct) {
+                score++;
+                feedbackHTML += `<p style="color:#4ade80; margin-bottom: 0.5rem;">✅ Q${index + 1}: Correct!</p>`;
+            } else {
+                feedbackHTML += `<p style="color:#ef4444; margin-bottom: 0.5rem;">❌ Q${index + 1}: Incorrect. Answer: ${q.correct}<br><small style="color: #ccc;">${q.explanation}</small></p>`;
+            }
+        } else {
+            // OE - Just save
+            const val = document.getElementById(`q${index}`).value;
+            answers.push({ q: index, val: val, type: 'OE' });
+            feedbackHTML += `<p style="color:#f59e0b; margin-bottom: 0.5rem;">⏳ Q${index + 1}: Submitted for Teacher Review.</p>`;
+        }
+    });
+
+    feedbackHTML += '</div>';
+
+    const grade = mcCount > 0 ? Math.round((score / mcCount) * 100) : 0;
+
+    // Calculate final grade
+    const finalGrade = grade;
+
+    const ctrl = document.querySelector('.controls');
+    ctrl.innerHTML = `
+        <div style="text-align: center; background: rgba(0,0,0,0.6); padding: 2rem; border-radius: 16px; margin-top: 2rem;">
+            <h1 style="color:white; margin-bottom: 1rem;">Quiz Completed! 🏁</h1>
+            <div style="font-size: 4rem; color: ${finalGrade >= 70 ? '#4ade80' : '#ef4444'}; font-weight: 800; margin-bottom: 1rem;">${finalGrade}%</div>
+            <p style="color: #cbd5e1; margin-bottom: 2rem;">(Multiple Choice Score)</p>
+            
+            ${feedbackHTML}
+            
+            <button onclick="renderGrades()" class="start-btn" style="margin-top:2rem; background: #3b82f6;">Return to Dashboard</button>
+        </div>
+    `;
+};
 
 document.addEventListener('DOMContentLoaded', initApp);

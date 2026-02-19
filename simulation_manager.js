@@ -437,13 +437,42 @@ const GeneticsLab = {
         // Acquired (Environment/Learning)
         skill: null, // 'music', 'cooking'
         tan: false,
-        scar: false
+        scar: false,
+
+        // Challenge Mode
+        currentChallengeIndex: 0,
+        completed: false
     },
+
+    challenges: [
+        {
+            text: "Create a **Green Monster** with **3 Eyes**.",
+            hint: "These are Inherited Traits (DNA). Check the first tab!",
+            check: (s) => s.color === '#10b981' && s.eyes == 3
+        },
+        {
+            text: "Create a monster that **Learned Music**.",
+            hint: "Music is a Skill (Acquired Trait). Check the second tab!",
+            check: (s) => s.skill === 'music'
+        },
+        {
+            text: "Create a **Red Monster** with a **Scar**.",
+            hint: "Red color is Inherited, but a Scar is Acquired active life!",
+            check: (s) => s.color === '#ef4444' && s.scar === true
+        },
+        {
+            text: "Create a **Blue Monster** with **Unicorn Horn** who can **Cook**.",
+            hint: "Mix Inherited (Blue, Horn) and Acquired (Cooking) traits!",
+            check: (s) => s.color === '#8b5cf6' && s.horns == 1 && s.skill === 'cooking'
+        }
+    ],
+
     container: null,
 
     render(container) {
         this.container = container;
-        // Reset state
+        // Reset state but keep challenge progress if we want, 
+        // OR reset everything. Let's reset for fresh start.
         this.state = {
             tab: 'inherited',
             color: '#8b5cf6',
@@ -451,12 +480,17 @@ const GeneticsLab = {
             eyes: 2,
             skill: null,
             tan: false,
-            scar: false
+            scar: false,
+            currentChallengeIndex: 0,
+            completed: false
         };
         this.renderTabs();
     },
 
     renderTabs() {
+        const challenge = this.challenges[this.state.currentChallengeIndex];
+        const progress = Math.round((this.state.currentChallengeIndex / this.challenges.length) * 100);
+
         this.container.innerHTML = `
             <div class="sim-header">
                 <h2>🧬 Genetics: Inherited vs Acquired</h2>
@@ -466,10 +500,20 @@ const GeneticsLab = {
                 </div>
             </div>
             
-            <div style="display: flex; height: 60vh; padding: 1rem; gap: 2rem; justify-content: center;">
+            <!-- Challenge Bar -->
+            <div style="background: #e0f2fe; border-bottom: 2px solid #bae6fd; padding: 10px 20px; text-align: center;">
+                <h4 style="margin: 0; color: #0369a1;">🎯 Mission: ${challenge.text}</h4>
+                <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #0c4a6e;">💡 ${challenge.hint}</p>
+                <div style="width: 100%; height: 6px; background: #e2e8f0; margin-top: 10px; border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${progress}%; height: 100%; background: #0ea5e9; transition: width 0.5s;"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; height: 55vh; padding: 1rem; gap: 2rem; justify-content: center;">
                 <!-- Monster Preview -->
-                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; border-radius: 16px; border: 2px dashed #cbd5e1;">
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; border-radius: 16px; border: 2px dashed #cbd5e1; position: relative;">
                     <h3 style="color: #64748b; margin-bottom: 1rem;">Your Monster</h3>
+                    
                     <div id="monster-preview" style="position: relative; width: 200px; height: 200px; transition: all 0.5s;">
                         <!-- Body -->
                         <div id="m-body" style="width: 100%; height: 100%; border-radius: 40px; background: ${this.state.tan ? '#d97706' : this.state.color}; transition: background 0.5s; position: relative; overflow: visible;">
@@ -492,6 +536,16 @@ const GeneticsLab = {
                             ${this.getSkillHTML()}
                         </div>
                     </div>
+
+                    <!-- Success Overlay -->
+                    ${this.state.completed ? `
+                    <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; animation: popIn 0.5s ease;">
+                        <div style="font-size: 4rem;">🎉</div>
+                        <h2 style="color: #16a34a;">Match Found!</h2>
+                        <button onclick="GeneticsLab.nextChallenge()" class="sim-btn" style="background: #16a34a; color: white; margin-top: 1rem;">Next Level ➡</button>
+                    </div>
+                    ` : ''}
+
                 </div>
 
                 <!-- Controls -->
@@ -500,6 +554,15 @@ const GeneticsLab = {
                 </div>
             </div>
         `;
+
+        if (!document.getElementById('anim-style')) {
+            const s = document.createElement('style');
+            s.id = 'anim-style';
+            s.innerHTML = `@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
+            document.head.appendChild(s);
+        }
+
+        this.checkValues();
     },
 
     switchTab(tab) {
@@ -519,9 +582,9 @@ const GeneticsLab = {
     },
 
     getHornsHTML() {
-        if (this.state.horns === 0) return '';
-        if (this.state.horns === 1) return '<div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 40px solid #fcd34d;"></div>'; // Unicorn
-        if (this.state.horns === 2) return `
+        if (this.state.horns == 0) return '';
+        if (this.state.horns == 1) return '<div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 40px solid #fcd34d;"></div>'; // Unicorn
+        if (this.state.horns == 2) return `
             <div style="position: absolute; top: -20px; left: 10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 30px solid #fcd34d; transform: rotate(-20deg);"></div>
             <div style="position: absolute; top: -20px; right: 10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 30px solid #fcd34d; transform: rotate(20deg);"></div>
         `;
@@ -545,9 +608,9 @@ const GeneticsLab = {
             <div class="control-group">
                 <label>Fur Color (Genetics)</label>
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
-                    <button onclick="GeneticsLab.setTrait('color', '#8b5cf6')" style="width: 30px; height: 30px; background: #8b5cf6; border-radius: 50%; border: 2px solid #ddd; cursor: pointer;"></button>
-                    <button onclick="GeneticsLab.setTrait('color', '#ef4444')" style="width: 30px; height: 30px; background: #ef4444; border-radius: 50%; border: 2px solid #ddd; cursor: pointer;"></button>
-                    <button onclick="GeneticsLab.setTrait('color', '#10b981')" style="width: 30px; height: 30px; background: #10b981; border-radius: 50%; border: 2px solid #ddd; cursor: pointer;"></button>
+                    <button onclick="GeneticsLab.setTrait('color', '#8b5cf6')" style="width: 30px; height: 30px; background: #8b5cf6; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; ${this.state.color === '#8b5cf6' ? 'box-shadow: 0 0 0 3px #bfdbfe;' : ''}"></button>
+                    <button onclick="GeneticsLab.setTrait('color', '#ef4444')" style="width: 30px; height: 30px; background: #ef4444; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; ${this.state.color === '#ef4444' ? 'box-shadow: 0 0 0 3px #bfdbfe;' : ''}"></button>
+                    <button onclick="GeneticsLab.setTrait('color', '#10b981')" style="width: 30px; height: 30px; background: #10b981; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; ${this.state.color === '#10b981' ? 'box-shadow: 0 0 0 3px #bfdbfe;' : ''}"></button>
                 </div>
             </div>
 
@@ -560,9 +623,9 @@ const GeneticsLab = {
             <div class="control-group" style="margin-top: 1.5rem;">
                 <label>Horns</label>
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
-                    <button class="sim-btn" onclick="GeneticsLab.setTrait('horns', 0)">None</button>
-                    <button class="sim-btn" onclick="GeneticsLab.setTrait('horns', 1)">Unicorn</button>
-                    <button class="sim-btn" onclick="GeneticsLab.setTrait('horns', 2)">Devil</button>
+                    <button class="sim-btn ${this.state.horns == 0 ? 'active' : ''}" onclick="GeneticsLab.setTrait('horns', 0)">None</button>
+                    <button class="sim-btn ${this.state.horns == 1 ? 'active' : ''}" onclick="GeneticsLab.setTrait('horns', 1)">Unicorn</button>
+                    <button class="sim-btn ${this.state.horns == 2 ? 'active' : ''}" onclick="GeneticsLab.setTrait('horns', 2)">Devil</button>
                 </div>
             </div>
         `;
@@ -576,20 +639,20 @@ const GeneticsLab = {
             <div class="control-group">
                 <label>Learn a Skill</label>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
-                    <button class="sim-btn" onclick="GeneticsLab.setTrait('skill', 'music')">🎸 Guitar Lessons</button>
-                    <button class="sim-btn" onclick="GeneticsLab.setTrait('skill', 'cooking')">🍳 Cooking Class</button>
-                    <button class="sim-btn" onclick="GeneticsLab.setTrait('skill', 'sports')">🏀 Basketball Camp</button>
-                    <button class="sim-btn" onclick="GeneticsLab.setTrait('skill', null)">❌ None</button>
+                    <button class="sim-btn ${this.state.skill === 'music' ? 'active' : ''}" onclick="GeneticsLab.setTrait('skill', 'music')">🎸 Guitar</button>
+                    <button class="sim-btn ${this.state.skill === 'cooking' ? 'active' : ''}" onclick="GeneticsLab.setTrait('skill', 'cooking')">🍳 Cooking</button>
+                    <button class="sim-btn ${this.state.skill === 'sports' ? 'active' : ''}" onclick="GeneticsLab.setTrait('skill', 'sports')">🏀 Sports</button>
+                    <button class="sim-btn ${!this.state.skill ? 'active' : ''}" onclick="GeneticsLab.setTrait('skill', null)">❌ None</button>
                 </div>
             </div>
 
             <div class="control-group" style="margin-top: 1.5rem;">
                 <label>Environment Events</label>
                 <div style="margin-top: 5px;">
-                    <button class="sim-btn" onclick="GeneticsLab.toggleTrait('tan')" style="width: 100%; margin-bottom: 0.5rem; text-align: left;">
+                    <button class="sim-btn ${this.state.tan ? 'active' : ''}" onclick="GeneticsLab.toggleTrait('tan')" style="width: 100%; margin-bottom: 0.5rem; text-align: left;">
                         ☀️ Go to the Beach (Get Tan) ${this.state.tan ? '✅' : ''}
                     </button>
-                    <button class="sim-btn" onclick="GeneticsLab.toggleTrait('scar')" style="width: 100%; text-align: left;">
+                    <button class="sim-btn ${this.state.scar ? 'active' : ''}" onclick="GeneticsLab.toggleTrait('scar')" style="width: 100%; text-align: left;">
                         🩹 Fall off Skateboard (Get Scar) ${this.state.scar ? '✅' : ''}
                     </button>
                 </div>
@@ -599,11 +662,33 @@ const GeneticsLab = {
 
     setTrait(key, value) {
         this.state[key] = value;
-        this.renderTabs();
+        this.renderTabs(); // Loops back to checkValues
     },
 
     toggleTrait(key) {
         this.state[key] = !this.state[key];
+        this.renderTabs(); // Loops back to checkValues
+    },
+
+    checkValues() {
+        if (this.state.completed) return; // Already done
+
+        const currentChallenge = this.challenges[this.state.currentChallengeIndex];
+        if (currentChallenge.check(this.state)) {
+            // Success!
+            this.state.completed = true;
+            this.renderTabs(); // Re-render to show success overlay
+        }
+    },
+
+    nextChallenge() {
+        this.state.currentChallengeIndex++;
+        if (this.state.currentChallengeIndex >= this.challenges.length) {
+            this.state.currentChallengeIndex = 0; // Loop or Finish? Let's loop for now
+            alert("All Challenges Completed! Restarting.");
+        }
+        this.state.completed = false;
+        // Reset monster? Maybe keep it.
         this.renderTabs();
     },
 
