@@ -220,15 +220,28 @@ function addMessage(text, sender) {
 
 // --- CORE APP FUNCTIONS (GLOBAL) ---
 
-window.startApp = function () {
-    console.log("Start button clicked!");
-    state.autoListen = true;
-    const startOverlay = document.getElementById('start-overlay');
-    if (startOverlay) startOverlay.style.display = 'none';
+window.startApp = async function () {
+    console.log("🚀 Starting App...");
+    const startOverlay = document.getElementById('start-overlay'); // Old overlay
+    const mainDashboard = document.getElementById('main-dashboard'); // New Unified Dashboard
 
-    // Show Chat Area (hidden initially)
+    if (startOverlay) startOverlay.style.display = 'none';
+    if (mainDashboard) mainDashboard.style.display = 'none'; // Hide Dashboard to enter Chat Mode
+
+    // Show Back Button
+    const backBtn = document.getElementById('global-back-btn');
+    if (backBtn) backBtn.style.display = 'block';
+
+    const sidebar = document.getElementById('app-sidebar');
     const chatArea = document.querySelector('.chat-area');
-    if (chatArea) chatArea.classList.add('visible');
+    const scrollIndicator = document.getElementById('scroll-indicator');
+
+    // Show Chat Area
+    if (chatArea) chatArea.style.display = 'flex';
+    // if (sidebar) sidebar.style.display = 'block'; // Keeping sidebar hidden per redesign? User didn't ask to remove it but unified dashboard implies full screen. Let's keep sidebar hidden for now or only show if needed.
+    if (scrollIndicator) scrollIndicator.style.display = 'block';
+
+    state.autoListen = true;
 
     // Show Dashboard Grid
     const dbGrid = document.getElementById('dashboard-grid');
@@ -1651,18 +1664,24 @@ async function renderProgressReport() {
     const header = document.createElement('div');
     header.style.display = 'flex';
     header.style.justifyContent = 'space-between';
-    header.style.alignItems = 'center';
+    header.style.alignItems = 'flex-start'; // Align top
+    header.style.flexWrap = 'wrap'; // Allow wrapping
+    header.style.gap = '1rem';
     header.style.maxWidth = '800px';
     header.style.margin = '0 auto 2rem auto';
     header.style.width = '100%';
 
     const title = document.createElement('h2');
-    title.innerHTML = `📊 Weekly Progress: ${state.currentUser.name}`;
+    title.innerHTML = `📊 Weekly Progress:<br><span style="font-size:1.2rem; color:#a5b4fc;">${state.currentUser.name}</span>`;
     title.style.color = '#fff';
+    title.style.margin = '0';
+    title.style.flex = '1';
 
     const closeBtn = document.createElement('button');
     closeBtn.textContent = 'Close ❌';
     closeBtn.className = 'option-btn';
+    closeBtn.style.flex = '0 0 auto'; // Don't shrink
+    closeBtn.style.minWidth = 'auto';
     closeBtn.onclick = () => overlay.remove();
 
     header.appendChild(title);
