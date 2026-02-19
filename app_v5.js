@@ -1466,13 +1466,28 @@ const initApp = () => {
 };
 
 
+// --- GLOBAL UI HELPERS ---
+window.toggleJournal = function () {
+    renderJournal();
+};
+
+window.toggleStats = function () {
+    renderProgressReport();
+};
+
 
 // --- JOURNAL UI ---
 function renderJournal() {
+    const existingOverlay = document.getElementById('journal-overlay');
+    if (existingOverlay) {
+        existingOverlay.remove();
+        return;
+    }
+
     // Hide other views
     const container = document.querySelector('.container');
-    const existingOverlay = document.getElementById('journal-overlay');
-    if (existingOverlay) existingOverlay.remove();
+    // const existingOverlay = document.getElementById('journal-overlay'); // This line is now redundant
+    // if (existingOverlay) existingOverlay.remove(); // This line is now redundant
 
     const overlay = document.createElement('div');
     overlay.id = 'journal-overlay';
