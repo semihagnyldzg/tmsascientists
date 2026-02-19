@@ -249,8 +249,8 @@ window.startApp = async function () {
     const dbGrid = document.getElementById('dashboard-grid');
     if (dbGrid) dbGrid.style.display = 'none'; // Ensure old grid is hidden just in case
 
-    const dbGrid = document.getElementById('dashboard-grid');
-    if (dbGrid) dbGrid.style.display = 'flex';
+    // REDUNDANT BLOCK REMOVED
+
 
     // Make Avatar Clickable to Stop Speech
     const avatar = document.querySelector('.avatar-img');
@@ -1297,12 +1297,20 @@ const initApp = () => {
         const gradeSelect = document.getElementById('login-grade-select');
         const selectedGrade = gradeSelect ? gradeSelect.value : "";
 
-        if (user && pass && !selectedGrade) {
-            alert("Please select your grade level before entering.");
+        console.log("Login Attempt:", { user, pass, selectedGrade });
+
+        if (!user || !pass) {
+            alert("Please enter both username and password.");
             return;
         }
 
-        loginBtn.innerText = "Checking... ⏳";
+        if (!selectedGrade) {
+            alert("Please select your grade level before entering.");
+            gradeSelect.focus();
+            return;
+        }
+
+        if (loginBtn) loginBtn.innerText = "Checking... ⏳";
         // ... rest of logic
 
 
