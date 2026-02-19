@@ -27,6 +27,21 @@ const SimManager = {
                 this._closeUI();
             }
         });
+
+        // Inject Shared Styles for Simulations
+        if (!document.getElementById('sim-shared-style')) {
+            const s = document.createElement('style');
+            s.id = 'sim-shared-style';
+            s.innerHTML = `
+                .sim-tab-btn { padding: 8px 16px; border: none; background: #e2e8f0; border-radius: 20px; cursor: pointer; font-weight: bold; margin: 0 5px; }
+                .sim-tab-btn.active { background: #3b82f6; color: white; }
+                .sim-tab-btn:hover { background: #cbd5e1; }
+                .sim-btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: transform 0.1s; }
+                .sim-btn:active { transform: scale(0.95); }
+                .sim-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+            `;
+            document.head.appendChild(s);
+        }
     },
 
     open(type, topic = "Science Topic") {
@@ -361,7 +376,24 @@ const MatterLab = {
 
         if (changed) {
             this.updateScaleVisuals();
-            alert("Physical Change Complete! Note the weight.");
+            // Pedagogical Feedback
+            const feedback = document.createElement('div');
+            feedback.style.position = 'absolute';
+            feedback.style.top = '10px';
+            feedback.style.left = '50%';
+            feedback.style.transform = 'translateX(-50%)';
+            feedback.style.background = '#dcfce7';
+            feedback.style.padding = '10px 20px';
+            feedback.style.borderRadius = '20px';
+            feedback.style.border = '2px solid #22c55e';
+            feedback.style.fontWeight = 'bold';
+            feedback.style.color = '#15803d';
+            feedback.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            feedback.innerHTML = `✨ Change Complete!<br>Form changed, but <b>Mass stayed the same!</b>`;
+
+            document.getElementById('scale-zone').appendChild(feedback);
+
+            setTimeout(() => feedback.remove(), 4000);
         } else {
             alert("Nothing to change right now. Add ingredients!");
         }
@@ -385,7 +417,15 @@ const MatterLab = {
 
             // Visual Block
             const div = document.createElement('div');
-            div.innerText = item.display;
+            // Enhanced Puddle Visual
+            if (item.type === 'water_puddle') {
+                div.innerText = '💧 Melted';
+                div.style.borderRadius = '50% 50% 5px 5px'; // Flattened look
+                div.style.transform = 'scaleX(1.2)';
+            } else {
+                div.innerText = item.display;
+            }
+
             div.style.position = 'absolute';
             div.style.bottom = '100%'; // Sit on top
             div.style.left = (20 + idx * 60) + 'px';
@@ -1178,6 +1218,31 @@ const EcosystemsLab = {
             return;
         }
 
+        // PREVENT REVERSE CONNECTIONS (Pedagogical Fix)
+        // We want Energy Flow: Eaten -> Eater
+        // If user tries: Eater -> Eaten (e.g., Deer -> Tree), warn them.
+
+        // Simple Trophic Levels map
+        const level = {
+            'sun': 0,
+            'grass': 1, 'tree': 1, 'fungi': 1, // Decomposers like Fungi are special, but for valid links...
+            'rabbit': 2, 'deer': 2,
+            'wolf': 3
+        };
+
+        // If 'from' level is higher than 'to' level, it's likely backwards (except decomposers)
+        // Exception: Wolf -> Fungi is valid (3 -> 1 technically if Fungi eats dead wolf)
+        // But Deer (2) -> Tree (1) is definitely wrong.
+
+        if (level[from] > level[to] && to !== 'fungi') {
+            document.getElementById('eco-feedback').innerHTML = `
+                ⚠️ <b>Wait!</b> Does <b>${to}</b> eat <b>${from}</b>?<br>
+                The arrow shows <b>Energy Flow</b>.<br>
+                It should go: <b>Biomass (Food) ➔ Eater</b>.
+            `;
+            return;
+        }
+
         this.state.connections.push({ from, to });
         this.renderLines();
         this.updateList();
@@ -1231,6 +1296,8 @@ const EcosystemsLab = {
         list.innerHTML = this.state.connections.map(c =>
             `<div style="padding: 2px; border-bottom: 1px solid #eee;">${c.from} ➔ ${c.to}</div>`
         ).join('');
+        // Auto scroll
+        list.scrollTop = list.scrollHeight;
     },
 
     checkBalance() {
@@ -1239,8 +1306,8 @@ const EcosystemsLab = {
         // Sun -> Grass, Sun -> Tree
         // Grass -> Rabbit, Grass -> Deer
         // Tree -> Deer
-        // Rabbit -> Wolf, Deer -> Wolf
-        // Wolf -> Fungi, Tree -> Fungi (Dead), etc. (Simplified)
+        // Rabbit -> Wolf, Deer -> Wolf (Wolf eats both)
+        // Wolf -> Fungi, Tree -> Fungi (Decomposers)
 
         const correctMap = [
             'sun-grass', 'sun-tree',
@@ -1250,17 +1317,40 @@ const EcosystemsLab = {
         ];
 
         let correctCount = 0;
+        let incorrectCount = 0;
+
         this.state.connections.forEach(c => {
-            if (correctMap.includes(`${c.from}-${c.to}`)) correctCount++;
+            const key = `${c.from}-${c.to}`;
+            if (correctMap.includes(key)) {
+                correctCount++;
+            } else if (c.to === 'fungi') {
+                // Bonus for decomposers
+                correctCount++;
+            } else {
+                incorrectCount++;
+            }
         });
 
         const fb = document.getElementById('eco-feedback');
-        if (correctCount >= 5) {
+
+        if (correctCount >= 5 && incorrectCount === 0) {
             fb.innerHTML = `<span style="color:green; font-weight:bold;">Example Ecosystem Stable!</span><br>Good energy flow found.`;
             fb.style.background = "#dcfce7";
-        } else {
-            fb.innerHTML = `Ecosystem Unstable. Needs more energy connections!<br>Hint: Start from the Sun.`;
+
+            // Celebration
+            if (!this.state.completed) {
+                const canvas = document.getElementById('eco-canvas');
+                canvas.style.border = "4px solid gold";
+                canvas.innerHTML += `<div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:5rem; animation:popIn 0.5s;">🌟</div>`;
+                this.state.completed = true;
+            }
+
+        } else if (incorrectCount > 0) {
+            fb.innerHTML = `<b>Unstable!</b> You have ${incorrectCount} incorrect connection(s).<br>Make sure animals eat the right food.`;
             fb.style.background = "#fee2e2";
+        } else {
+            fb.innerHTML = `<b>Building...</b> You have ${correctCount} connections.<br>An ecosystem needs more interactions (at least 5) to be stable!`;
+            fb.style.background = "#fff7ed"; // Orange warning
         }
     },
 
