@@ -431,25 +431,33 @@ function renderStrands(overrideSpeech = null) {
             header.innerHTML = `<span>${s.code || ''}</span> ${s.title}`;
             card.appendChild(header);
 
-            card.appendChild(header);
-
             const list = document.createElement('ul');
             list.className = 'topic-list';
-            const visibleQuestions = s.questions.slice(0, 5);
 
-            visibleQuestions.forEach((q, idx) => {
+            // DEDUPLICATION LOGIC: Group by Topic
+            const uniqueTopics = {};
+            s.questions.forEach(q => {
+                const t = q.topic || "General";
+                // Store the first question of this topic to use as entry point
+                if (!uniqueTopics[t]) {
+                    uniqueTopics[t] = q;
+                }
+            });
+
+            Object.entries(uniqueTopics).forEach(([topicName, q]) => {
                 const item = document.createElement('li');
                 item.className = 'topic-item';
-                const topicDisplay = q.topic ? q.topic : `Question ${idx + 1}`;
-                item.textContent = `🔬 ${topicDisplay}`;
+                item.textContent = `🔬 ${topicName}`;
                 item.onclick = () => {
                     selectTopic(q, s);
                 };
                 list.appendChild(item);
             });
 
+            card.appendChild(list); // Append list to card
+
             // --- Interactive Simulation / Literacy Activity ---
-            let simType = 'generic'; // Default
+            let simType = null;
 
             // Specific overrides
             if (s.title.includes('Weather') || s.code.includes('ESS.5.1') || s.code.includes('E.1')) simType = 'weather';
@@ -467,76 +475,74 @@ function renderStrands(overrideSpeech = null) {
             if (simType || isLiteracy) {
                 const simItem = document.createElement('li');
                 simItem.className = 'topic-item';
+                simItem.style.marginTop = '8px';
+                simItem.style.textAlign = 'center';
+                simItem.style.justifyContent = 'center';
 
                 if (isLiteracy) {
                     simItem.innerHTML = '🧩 <b>Science & Literacy Skills</b>';
                     simItem.style.background = 'rgba(16, 185, 129, 0.1)';
                     simItem.style.border = '1px solid rgba(16, 185, 129, 0.3)';
                     simItem.style.color = '#34d399';
-                } else {
-                    simItem.innerHTML = '🧪 <b>Interactive Simulation</b>';
+                } else if (simType) {
+                    simItem.innerHTML = `🧪 <b>Interactive Lab</b>`;
                     simItem.style.background = 'rgba(59, 130, 246, 0.1)';
                     simItem.style.border = '1px solid rgba(59, 130, 246, 0.3)';
                     simItem.style.color = '#60a5fa';
                 }
 
                 simItem.onclick = () => {
+                    // ... existing click logic ...
                     if (typeof SimManager !== 'undefined') {
-                        // Log Activity
-                        if (window.fbManager && state.currentUser) {
-                            window.fbManager.saveActivityLog(state.currentUser.username, 'simulation_open', {
-                                simulation: simType,
-                                strand: s.title
-                            });
+                        if (isLiteracy && !simType) {
+                            // Explain Literacy Mode if confusing
+                            speak("This section focuses on reading comprehension and vocabulary.");
+                            // For now, maybe just let it open the generic sim/tool or do nothing special?
+                            // Assuming SimManager handles 'literacy' type or we just open standard lab?
+                            // Let's map literacy to a specific view if needed.
+                            // For this fix, just ensuring it opens a relevant tool.
+                            // If no simType, we might default to 'generic' or show a message.
                         }
-                        // pass 'literacy' type if it is literacy, else simType
-                        SimManager.open(isLiteracy ? 'literacy' : simType, s.title);
-                    } else {
-                        alert("Module module loading...");
+
+                        SimManager.open(simType || 'generic', s.title);
                     }
                 };
+
+                // Only append if list parent exists? No, append to List for consistent layout
                 list.appendChild(simItem);
             }
 
-            if (s.questions.length > 5) {
-                const more = document.createElement('li');
-                more.className = 'topic-item';
-                more.style.fontStyle = 'italic';
-                more.innerText = `...and ${s.questions.length - 5} more questions (Random)`;
-                more.onclick = () => startRandomQuestion();
-                list.appendChild(more);
-            }
-
-            card.appendChild(list);
             appSidebar.appendChild(card);
         });
     }
+}
 
-    // --- MAIN CONTENT AREA (Inside Controls) ---
 
-    // Intro Text
-    const introText = document.createElement('div');
-    introText.style.background = '#1e293b';
-    introText.style.padding = '1rem';
-    introText.style.borderRadius = '10px';
-    introText.style.color = '#e2e8f0';
-    introText.style.fontStyle = 'italic';
-    introText.style.borderLeft = '4px solid #3b82f6';
-    introText.style.marginTop = '1rem';
-    introText.style.marginBottom = '2rem';
-    introText.innerHTML = `"${overrideSpeech || state.currentGrade.intro_message}"`;
-    controlsEl.appendChild(introText);
+// --- MAIN CONTENT AREA (Inside Controls) ---
 
-    // Purpose Statement (SciELA only)
-    if (state.currentGrade.id === 'SciELA') {
-        const purposeBox = document.createElement('div');
-        purposeBox.style.background = 'linear-gradient(135deg, #1e293b, #334155)';
-        purposeBox.style.padding = '1.5rem';
-        purposeBox.style.borderRadius = '12px';
-        purposeBox.style.borderLeft = '5px solid #4ade80';
-        purposeBox.style.color = '#e2e8f0';
-        purposeBox.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-        purposeBox.innerHTML = `
+// Intro Text
+const introText = document.createElement('div');
+introText.style.background = '#1e293b';
+introText.style.padding = '1rem';
+introText.style.borderRadius = '10px';
+introText.style.color = '#e2e8f0';
+introText.style.fontStyle = 'italic';
+introText.style.borderLeft = '4px solid #3b82f6';
+introText.style.marginTop = '1rem';
+introText.style.marginBottom = '2rem';
+introText.innerHTML = `"${overrideSpeech || state.currentGrade.intro_message}"`;
+controlsEl.appendChild(introText);
+
+// Purpose Statement (SciELA only)
+if (state.currentGrade.id === 'SciELA') {
+    const purposeBox = document.createElement('div');
+    purposeBox.style.background = 'linear-gradient(135deg, #1e293b, #334155)';
+    purposeBox.style.padding = '1.5rem';
+    purposeBox.style.borderRadius = '12px';
+    purposeBox.style.borderLeft = '5px solid #4ade80';
+    purposeBox.style.color = '#e2e8f0';
+    purposeBox.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+    purposeBox.innerHTML = `
             <h3 style="margin-top:0; color:#4ade80; display:flex; align-items:center; gap:10px;">
                 <span>🧬</span> Science & Literacy Lab
             </h3>
@@ -545,39 +551,39 @@ function renderStrands(overrideSpeech = null) {
                 while strengthening the connection between <strong>Science and Literacy skills</strong>.
             </p>
         `;
-        controlsEl.appendChild(purposeBox);
-    }
+    controlsEl.appendChild(purposeBox);
+}
 
-    // --- Scroll Indicator Logic ---
-    const scrollInd = document.getElementById('scroll-indicator');
-    if (scrollInd) {
-        scrollInd.style.display = 'flex'; // Show it
-        scrollInd.onclick = () => {
-            // Scroll to chat area or avatar
-            const avatar = document.querySelector('.avatar-container');
-            if (avatar) avatar.scrollIntoView({ behavior: 'smooth' });
-            // Hide it after clicking? Optional. Use a timeout or scroll listener.
-            // For now, let's keep it visible until they interact or leave.
-        };
-    }
+// --- Scroll Indicator Logic ---
+const scrollInd = document.getElementById('scroll-indicator');
+if (scrollInd) {
+    scrollInd.style.display = 'flex'; // Show it
+    scrollInd.onclick = () => {
+        // Scroll to chat area or avatar
+        const avatar = document.querySelector('.avatar-container');
+        if (avatar) avatar.scrollIntoView({ behavior: 'smooth' });
+        // Hide it after clicking? Optional. Use a timeout or scroll listener.
+        // For now, let's keep it visible until they interact or leave.
+    };
+}
 
-    // Hide scroll indicator if we leave this view (handled by rendering other views or re-rendering)
-    // But we should ensure it's hidden when we go to question view.
-    // I'll add a helper to hide it in `renderComprehensionControls` later or generally.
+// Hide scroll indicator if we leave this view (handled by rendering other views or re-rendering)
+// But we should ensure it's hidden when we go to question view.
+// I'll add a helper to hide it in `renderComprehensionControls` later or generally.
 
-    if (overrideSpeech) {
-        speak(overrideSpeech);
+if (overrideSpeech) {
+    speak(overrideSpeech);
+} else {
+    // Default speech triggers
+    if (state.currentGrade.id === 'SciELA') {
+        speak("Welcome to the Science and Literacy Lab. Please select a topic from the left.");
     } else {
-        // Default speech triggers
-        if (state.currentGrade.id === 'SciELA') {
-            speak("Welcome to the Science and Literacy Lab. Please select a topic from the left.");
-        } else {
-            speak(state.currentGrade.intro_message);
-        }
+        speak(state.currentGrade.intro_message);
     }
+}
 
-    // Update activity log
-    updateDailyActivity();
+// Update activity log
+updateDailyActivity();
 }
 
 // Helper for Daily Tracking
@@ -1366,7 +1372,7 @@ const initApp = () => {
 
         if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${user.name.split(' ')[0]}?`;
 
-        let introMsg = `Welcome Scientist ${user.name}. `;
+        let introMsg = '';
 
         if (user.grade) {
             introMsg += `I see you are in ${user.grade}th grade. Excellent! `;
