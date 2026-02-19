@@ -234,16 +234,21 @@ window.startApp = async function () {
 
     const sidebar = document.getElementById('app-sidebar');
     const chatArea = document.querySelector('.chat-area');
+    const controls = document.querySelector('.controls');
     const scrollIndicator = document.getElementById('scroll-indicator');
 
     // Show Chat Area
     if (chatArea) chatArea.style.display = 'flex';
-    // if (sidebar) sidebar.style.display = 'block'; // Keeping sidebar hidden per redesign? User didn't ask to remove it but unified dashboard implies full screen. Let's keep sidebar hidden for now or only show if needed.
+    if (controls) controls.style.display = 'flex';
+    if (sidebar) sidebar.style.display = 'flex'; // Restore Sidebar
     if (scrollIndicator) scrollIndicator.style.display = 'block';
 
     state.autoListen = true;
 
-    // Show Dashboard Grid
+    // Show Dashboard Grid (Legacy check, can remove if unused, but safety first)
+    const dbGrid = document.getElementById('dashboard-grid');
+    if (dbGrid) dbGrid.style.display = 'none'; // Ensure old grid is hidden just in case
+
     const dbGrid = document.getElementById('dashboard-grid');
     if (dbGrid) dbGrid.style.display = 'flex';
 
@@ -1337,7 +1342,18 @@ const initApp = () => {
         const mainDashboard = document.getElementById('main-dashboard');
         const welcomeHeader = document.getElementById('welcome-header');
 
+        // Hide potential overlapping elements
+        const sidebar = document.getElementById('app-sidebar');
+        const chatArea = document.querySelector('.chat-area');
+        const controls = document.querySelector('.controls');
+        const scrollIndicator = document.getElementById('scroll-indicator');
+
         if (loginOverlay) loginOverlay.style.display = 'none';
+        if (sidebar) sidebar.style.display = 'none';
+        if (chatArea) chatArea.style.display = 'none';
+        if (controls) controls.style.display = 'none';
+        if (scrollIndicator) scrollIndicator.style.display = 'none';
+
         if (mainDashboard) mainDashboard.style.display = 'flex'; // Show new dashboard
 
         if (welcomeHeader) welcomeHeader.textContent = `Ready, Scientist ${user.name.split(' ')[0]}?`;
