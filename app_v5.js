@@ -1605,6 +1605,7 @@ function renderJournal() {
     header.style.maxWidth = '800px';
     header.style.margin = '0 auto 2rem auto';
     header.style.width = '100%';
+    header.style.gap = '2rem'; // Added spacing as requested
 
     const title = document.createElement('h2');
     title.innerHTML = `📓 Scientist's Log: ${state.currentUser.name}`;

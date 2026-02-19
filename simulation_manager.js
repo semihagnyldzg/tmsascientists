@@ -376,24 +376,8 @@ const MatterLab = {
 
         if (changed) {
             this.updateScaleVisuals();
-            // Pedagogical Feedback
-            const feedback = document.createElement('div');
-            feedback.style.position = 'absolute';
-            feedback.style.top = '10px';
-            feedback.style.left = '50%';
-            feedback.style.transform = 'translateX(-50%)';
-            feedback.style.background = '#dcfce7';
-            feedback.style.padding = '10px 20px';
-            feedback.style.borderRadius = '20px';
-            feedback.style.border = '2px solid #22c55e';
-            feedback.style.fontWeight = 'bold';
-            feedback.style.color = '#15803d';
-            feedback.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
-            feedback.innerHTML = `✨ Change Complete!<br>Form changed, but <b>Mass stayed the same!</b>`;
-
-            document.getElementById('scale-zone').appendChild(feedback);
-
-            setTimeout(() => feedback.remove(), 4000);
+            // Pedagogical Feedback - Removed as per user request (Step 871)
+            // Only visual label 'Melted' on items is sufficient.
         } else {
             alert("Nothing to change right now. Add ingredients!");
         }
